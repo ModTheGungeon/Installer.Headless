@@ -1,0 +1,26 @@
+﻿<Properties StartupConfiguration="{14668D9A-D210-4255-B921-FB2665223CE1}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MTGInstaller/src/Headless/YAML/GungeonMetadata.cs">
+    <Files>
+      <File FileName="MTGInstaller/src/ExePatcher.cs" Line="1" Column="1" />
+      <File FileName="MTGInstaller/src/Headless/Installer.cs" Line="31" Column="4" />
+      <File FileName="MTGInstaller/res/versions.txt" Line="10" Column="1" />
+      <File FileName="MTGInstaller/src/Headless/Program.cs" Line="125" Column="32" />
+      <File FileName="MTGInstaller/src/Headless/Logger.cs" Line="1" Column="1" />
+      <File FileName="MTGInstaller/src/Headless/Options.cs" Line="25" Column="3" />
+      <File FileName="MTGInstaller/src/Headless/Downloader.cs" Line="42" Column="1" />
+      <File FileName="MTGInstaller/src/Headless/Autodetector.cs" Line="109" Column="10" />
+      <File FileName="MTGInstaller/src/Headless/YAML/ETGModVersion.cs" Line="18" Column="4" />
+      <File FileName="MTGInstaller/src/Headless/YAML/SerializationHelper.cs" Line="8" Column="3" />
+      <File FileName="MTGInstaller/src/Headless/YAML/ETGModComponent.cs" Line="16" Column="5" />
+      <File FileName="MTGInstaller/src/Headless/YAML/ComponentMetadata.cs" Line="10" Column="48" />
+      <File FileName="MTGInstaller/src/Headless/YAML/GungeonMetadata.cs" Line="6" Column="21" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.MTGInstaller PreferredExecutionTarget="MonoDevelop.Default" />
+</Properties>

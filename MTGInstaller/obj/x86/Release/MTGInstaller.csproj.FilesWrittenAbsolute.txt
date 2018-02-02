@@ -1,0 +1,8 @@
+/home/zatherz/Projects/ModTheGungeon/Installer/MTGInstaller/obj/x86/Release/.NETFramework,Version=v4.5.AssemblyAttribute.cs
+/home/zatherz/Projects/ModTheGungeon/Installer/MTGInstaller/bin/Release/Xwt.Gtk3.dll.config
+/home/zatherz/Projects/ModTheGungeon/Installer/MTGInstaller/bin/Release/MTGInstaller.exe
+/home/zatherz/Projects/ModTheGungeon/Installer/MTGInstaller/obj/x86/Release/MTGInstaller.exe
+/home/zatherz/Projects/ModTheGungeon/Installer/MTGInstaller/bin/Release/Xwt.dll
+/home/zatherz/Projects/ModTheGungeon/Installer/MTGInstaller/bin/Release/Xwt.WPF.dll
+/home/zatherz/Projects/ModTheGungeon/Installer/MTGInstaller/bin/Release/Xwt.Gtk3.dll
+/home/zatherz/Projects/ModTheGungeon/Installer/MTGInstaller/bin/Release/Xwt.XamMac.dll

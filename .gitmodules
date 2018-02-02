@@ -1,0 +1,6 @@
+[submodule "libs/MonoMod"]
+	path = libs/MonoMod
+	url = https://github.com/0x0ade/MonoMod
+[submodule "libs/YamlDotNet"]
+	path = libs/YamlDotNet
+	url = https://github.com/aaubry/YamlDotNet
