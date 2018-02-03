@@ -51,6 +51,7 @@
     <Compile Include="src\Logger.cs" />
     <Compile Include="src\Options.cs" />
     <Compile Include="src\Program.cs" />
+    <Compile Include="src\ComponentVersion.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />
