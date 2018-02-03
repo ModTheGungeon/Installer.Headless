@@ -7,10 +7,14 @@ using System.Text;
 using MonoMod;
 using MTGInstaller.YAML;
 
-
 namespace MTGInstaller {
 	public class Installer {
-		public static readonly string Version = "03.02.2018";
+		public static string Version { 
+			get { 
+				var attr = Attribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
+				return attr?.InformationalVersion ?? "???";
+			}
+		}
 		public static Logger _Logger = new Logger(nameof(Installer));
 
 		const string BACKUP_DIR_NAME = ".ETGModBackup";
