@@ -9,6 +9,9 @@ namespace MTGInstaller.YAML {
 		[YamlMember(Alias = "name")]
 		public string DisplayName { set; get; }
 
+		[YamlMember(Alias = "path")]
+		public string Path { set; get; }
+
 		[YamlMember(Alias = "url")]
 		public string URL { set; get; }
 

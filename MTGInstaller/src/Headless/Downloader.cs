@@ -4,6 +4,7 @@ using System.Net;
 using System.IO.Compression;
 using MTGInstaller.YAML;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace MTGInstaller {
 	public class DownloadedBuild : IDisposable {
@@ -25,6 +26,8 @@ namespace MTGInstaller {
 	public class Downloader {
 		public static WebClient WebClient = new WebClient();
 		private static Logger _Logger = new Logger(nameof(Downloader));
+
+		public const string LOCAL_COMPONENT_FILE_NAME = "custom-components.yml";
 
 		public Dictionary<string, ETGModComponent> Components;
 
@@ -49,6 +52,31 @@ namespace MTGInstaller {
 			GungeonMetadataURL = $"{BaseURL}/gungeon.yml";
 
 			Components = ParseComponentsFile(FetchComponents());
+
+			string local_component_yml_path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+			local_component_yml_path = Path.Combine(local_component_yml_path, "Mod the Gungeon");
+			if (!Directory.Exists(local_component_yml_path)) Directory.CreateDirectory(local_component_yml_path);
+
+			local_component_yml_path = Path.Combine(local_component_yml_path, LOCAL_COMPONENT_FILE_NAME);
+			if (File.Exists(local_component_yml_path)) {
+				AddComponentsFile(File.ReadAllText(local_component_yml_path));
+			} else {
+				var asm = Assembly.GetExecutingAssembly();
+				var stream = asm.GetManifestResourceStream("res::custom-components-template");
+
+				using (var reader = new StreamReader(stream))
+				using (var writer = File.CreateText(local_component_yml_path)) {
+					writer.Write(reader.ReadToEnd());
+				}
+			}	       
+		}
+
+		public void AddComponentsFile(string components) {
+			var parsed = SerializationHelper.Deserializer.Deserialize<ETGModComponent[]>(components);
+			if (parsed == null) return;
+			foreach (var com in parsed) {
+				Components[com.Name] = com;
+			}
 		}
 
 		public static Dictionary<string, ETGModComponent> ParseComponentsFile(string components) {
@@ -92,15 +120,15 @@ namespace MTGInstaller {
 		}
 
 		public DownloadedBuild Download(ETGModVersion version) {
-			if (version.URL == null) throw new ArgumentException("Version doesn't have a URL");
+			if (version.URL == null && version.Path == null) throw new ArgumentException("Version has neither a URL nor a file path");
 			return Download(version, GenerateUniqueDestination());
 		}
 
 		public DownloadedBuild Download(ETGModVersion version, string destination) {
-			return Download(version.URL, destination, version.DisplayName);
+			return Download(version.Path ?? version.URL, destination, version.DisplayName, version.Path != null);
 		}
 
-		public DownloadedBuild Download(string url, string dest, string name = null) {
+		public DownloadedBuild Download(string url, string dest, string name = null, bool local = false) {
 			if (name != null) _Logger.Info($"Downloading {name} from {url} to {dest}");
 			else _Logger.Info($"Downloading {url} to {dest}");
 
@@ -108,7 +136,8 @@ namespace MTGInstaller {
 			var zip_path = Path.Combine(dest, "DOWNLOAD.zip");
 			Directory.CreateDirectory(dest);
 			Directory.CreateDirectory(extract_path);
-			WebClient.DownloadFile(url, zip_path);
+			if (local) File.Copy(url, zip_path, overwrite: true);
+			else WebClient.DownloadFile(url, zip_path);
 			ZipFile.ExtractToDirectory(zip_path, extract_path);
 			return new DownloadedBuild(url, dest, extract_path);
 		}

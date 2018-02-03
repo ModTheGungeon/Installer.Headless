@@ -116,53 +116,69 @@ namespace MTGInstaller {
 			private Logger _Logger;
 			const string MONOMOD_SUFFIX = ".mm.dll";  // must have priority over DLL_SUFFIX
 			const string DLL_SUFFIX = ".dll";
+			const string EXE_SUFFIX = ".exe";
 			const string TXT_SUFFIX = ".txt";
 			const string METADATA = "metadata.yml";
 			const string TMP_PATCH_SUFFIX = ".patched";
 
-			public readonly static string[] PatchTargets = {
-				"Assembly-CSharp",
-				"UnityEngine"
-			};
-
-			public List<string> DLLs = new List<string>();
+			public List<string> Assemblies = new List<string>();
 			public List<string> PatchDLLs = new List<string>();
-			public List<string> Texts = new List<string>();
+			public List<string> OtherFiles = new List<string>();
+			public List<string> Dirs = new List<string>();
 			public ComponentMetadata Metadata;
-			public string Name;
+			private string _Name;
+			public string Name { get { return Metadata.Name ?? _Name; } }
 			public string VersionKey;
 			public string VersionName;
 			public string ExtractedPath;
 			public string SupportedGungeon;
 
-			public bool InstallAllInSubdir { get { return Metadata != null && Metadata.InstallAllInSubdir; } }
 			public IList<string> InstallInSubdir { get { return Metadata?.InstallInSubdir; } }
+			public IList<string> InstallInManaged { get { return Metadata?.InstallInManaged; } }
 
-			public bool InstalledInSubdir(string entry) {
-				return entry.EndsWith(TXT_SUFFIX, StringComparison.InvariantCulture) || (InstallInSubdir != null && InstallInSubdir.Contains(entry));
+			private TargetDirectory _GetTargetDir(string entry, TargetDirectory default_target = TargetDirectory.Managed) {
+				var target = default_target;
+				if (InstallInSubdir != null && InstallInSubdir.Contains(entry)) {
+					target = TargetDirectory.Subdir;
+				}
+				if (InstallInManaged != null && InstallInManaged.Contains(entry)) {
+					target = TargetDirectory.Managed;
+				}
+				return target;
 			}
+
+			private enum TargetDirectory {
+				Managed,
+				Subdir
+			}
+
 
 			public InstallableComponent(string name, string version_key, string version_name, string extracted_path, string supported_gungeon, IList<string> dir_entries) {
 				_Logger = new Logger($"InstallableComponent:{name}");
 
-				Name = name;
+				_Name = name;
 				VersionKey = version_key;
 				VersionName = version_name;
 				ExtractedPath = extracted_path;
 				SupportedGungeon = supported_gungeon;
 
 				foreach (var ent in dir_entries) {
+					var filename = Path.GetFileName(ent);
+
 					if (ent.EndsWith(MONOMOD_SUFFIX, StringComparison.InvariantCulture)) {
-						PatchDLLs.Add(Path.GetFileName(ent));
-					} else if (ent.EndsWith(DLL_SUFFIX, StringComparison.InvariantCulture)) {
-						DLLs.Add(Path.GetFileName(ent));
-					} else if (ent.EndsWith(TXT_SUFFIX, StringComparison.InvariantCulture)) {
-						Texts.Add(Path.GetFileName(ent));
+						PatchDLLs.Add(filename);
+					} else if (ent.EndsWith(DLL_SUFFIX, StringComparison.InvariantCulture) || ent.EndsWith(EXE_SUFFIX, StringComparison.InvariantCulture)) {
+						Assemblies.Add(filename);
 					} else if (ent.EndsWith($"{Path.DirectorySeparatorChar}{METADATA}", StringComparison.InvariantCulture)) {
 						var mt = File.ReadAllText(ent);
 						Metadata = SerializationHelper.Deserializer.Deserialize<ComponentMetadata>(mt);
 					} else {
-						_Logger.Warn($"Unknown file type: {Path.GetFileName(ent)}");
+						var attr = File.GetAttributes(ent);
+						if (attr.HasFlag(FileAttributes.Directory)) {
+							Dirs.Add(filename);
+						} else {
+							OtherFiles.Add(filename);
+						}
 					}
 				}
 			}
@@ -203,32 +219,57 @@ namespace MTGInstaller {
 				return Path.Combine(ExtractedPath, rel_path);
 			}
 
-			private void _Install(string name, IList<string> entries, string managed) {
+			private static void _Copy(string source, string destination) {
+				// https://docs.microsoft.com/en-us/dotnet/standard/io/how-to-copy-directories
+				var attr = File.GetAttributes(source);
+				if (attr.HasFlag(FileAttributes.Directory)) {
+					var dir = new DirectoryInfo(source);
+
+					if (!dir.Exists) {
+						throw new DirectoryNotFoundException($"Source directory does not exist or could not be found: {source}");
+					}
+
+					var dirs = dir.GetDirectories();
+					if (!Directory.Exists(destination)) Directory.CreateDirectory(destination);
+
+					var files = dir.GetFiles();
+					foreach (var file in files) {
+						var path = Path.Combine(destination, file.Name);
+						file.CopyTo(path, false);
+					}
+
+					foreach (var subdir in dirs) {
+						var path = Path.Combine(destination, subdir.Name);
+						_Copy(subdir.FullName, path);
+					}
+				} else {
+					File.Copy(source, destination, overwrite: true);
+				}
+
+
+			}
+
+			private void _Install(string name, IList<string> entries, string managed, bool subdir = false) {
 				foreach (var ent in entries) {
 					_Logger.Info($"Installing {name}: {ent}");
 
+					var target = _GetTargetDir(ent, subdir ? TargetDirectory.Subdir : TargetDirectory.Managed);
+
 					var local_target = managed;
-					if (InstalledInSubdir(ent)) local_target = Path.Combine(managed, Name);
+					if (target == TargetDirectory.Subdir) local_target = Path.Combine(managed, Name);
 					if (!Directory.Exists(local_target)) Directory.CreateDirectory(local_target);
 
-					File.Copy(AbsPath(ent), Path.Combine(local_target, ent), overwrite: true);
+					_Copy(AbsPath(ent), Path.Combine(local_target, ent));
 				}
 			}
 
 			public void Install(Installer installer) {
 				var managed = installer.ManagedDir;
 
-				var target = managed;
-				string[] force_in_subdir = null;
-
-				if (Metadata != null) {
-					if (Metadata.InstallAllInSubdir) target = Path.Combine(managed, Name);
-					if (Metadata.InstallInSubdir != null) force_in_subdir = Metadata.InstallInSubdir;
-				}
-
-				_Install("DLL", DLLs, managed);
+				_Install("assembly", Assemblies, managed);
 				_Install("MonoMod patch DLL", PatchDLLs, managed);
-				_Install("text file", Texts, managed);
+				_Install("file", OtherFiles, managed, subdir: true);
+				_Install("directory", Dirs, managed, subdir: true);
 
 				foreach (var patch_target in installer.Downloader.GungeonMetadata.ViablePatchTargets) {
 					var patch_target_dll = Path.Combine(managed, $"{patch_target}.dll");
@@ -244,7 +285,7 @@ namespace MTGInstaller {
 					var found_mods = false;
 
 					foreach (var dll in PatchDLLs) {
-						if (!InstalledInSubdir(dll) && dll.StartsWith($"{patch_target}.", StringComparison.InvariantCulture)) {
+						if (File.Exists(Path.Combine(managed, dll)) && dll.StartsWith($"{patch_target}.", StringComparison.InvariantCulture)) {
 							found_mods = true;
 							_Logger.Debug($"Using patch DLL: {dll}");
 
@@ -264,13 +305,13 @@ namespace MTGInstaller {
 					modder.Write();
 					modder.Dispose();
 
-					_Logger.Debug($"Replacing original");
-					if (File.Exists(patch_target)) File.Delete(patch_target);
-					File.Move(patch_target_tmp, patch_target);
+					_Logger.Debug($"Replacing original ({patch_target_tmp} => {patch_target_dll})");
+					if (File.Exists(patch_target_dll)) File.Delete(patch_target_dll);
+					File.Move(patch_target_tmp, patch_target_dll);
 				}
 
 				foreach (var dll in PatchDLLs) {
-					if (InstalledInSubdir(dll)) continue;
+					if (!File.Exists(Path.Combine(managed, dll))) continue;
 
 					_Logger.Debug($"Cleaning up patch DLL {dll}");
 					File.Delete(Path.Combine(managed, dll));
@@ -278,7 +319,7 @@ namespace MTGInstaller {
 
 				_Logger.Debug($"Cleaning up patch DLL MDB/PDBs");
 				foreach (var ent in Directory.GetFileSystemEntries(managed)) {
-					if (ent.EndsWith(".patched.mdb", StringComparison.InvariantCulture)) File.Delete(ent);
+					if (ent.EndsWith($"{TMP_PATCH_SUFFIX}.mdb", StringComparison.InvariantCulture)) File.Delete(ent);
 				}
 			}
 		}

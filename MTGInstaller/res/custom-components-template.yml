@@ -1,0 +1,30 @@
+﻿# Use this file to specify custom components
+# for example for your local builds
+#
+#- name: ETGMod_local
+#  versions:
+#    - key: release
+#      name: Custom Release Build
+#      url: file:///home/somebody/somewhere.zip
+#      supported_gungeon: 1.1.4
+#    - key: debug
+#      name: Custom Debug Build
+#      path: /home/a/b/c/d.zip
+#      beta: true
+#      supported_gungeon: 1.0.1
+#    - key: my0.2.0
+#      name: My 0.2.0 build
+#      release_date: 01/02/03 04:05:06
+#      path: 'C:\My 0.2.0 build\ETGMOD.zip'
+#- name: MyCustomAPI
+#  versions:
+#    - key: latest
+#      name: Latest
+#      url: https://example.org/MyCustomAPI-2.zip
+#    - key: 2
+#      url: https://example.org/MyCustomAPI-2.zip
+#      supported_gungeon: 1.1.4
+#    - key: 1
+#      url: https://example.org/MyCustomAPI-1.zip
+#      supported_gungeon: 1.1.3
+#      release_date: somewhen

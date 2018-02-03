@@ -1,2 +1,0 @@
-/home/zatherz/Projects/ModTheGungeon/Installer/MTGInstaller/obj/x86/Debug/MTGInstaller.exe
-/home/zatherz/Projects/ModTheGungeon/Installer/MTGInstaller/obj/x86/Debug/MTGInstaller.pdb

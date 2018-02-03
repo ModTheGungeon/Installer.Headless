@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CommandLine;
 
 namespace MTGInstaller.Options {
@@ -14,7 +15,7 @@ namespace MTGInstaller.Options {
 		public bool Force { get; set; }
 
 		[Option('h', "http", HelpText = "Force use of insecure HTTP instead of HTTPS")]
-		public bool HTTP { get; set; }
+		public bool HTTP { get; set; } 
 	}
 
 	[Verb("autodetect", HelpText = "Attempt to autodetect the platform and location of the game")]
@@ -29,8 +30,20 @@ namespace MTGInstaller.Options {
 		[Option('h', "http", HelpText = "Force use of insecure HTTP instead of HTTPS")]
 		public bool HTTP { get; set; }
 
-		[Value(0, MetaName = "name", HelpText = "Name of a component (to get specific details)", Required = false)]
+		[Option('c', "components", HelpText = "Add custom components through a YAML file")]
+		public IEnumerable<string> CustomComponentFiles { get; set; }
+	}
+
+	[Verb("component", HelpText = "Show detailed information about a certain component")]
+	public class ComponentOptions {
+		[Option('h', "http", HelpText = "Force use of insecure HTTP instead of HTTPS")]
+		public bool HTTP { get; set; }
+
+		[Value(0, MetaName = "name", HelpText = "Name of a component (to get specific details)")]
 		public string Name { get; set; }
+
+		[Option('c', "components", HelpText = "Add custom components through a YAML file")]
+		public IEnumerable<string> CustomComponentFiles { get; set; }
 	}
 
 	[Verb("install", HelpText = "Install ETGMod")]
@@ -49,5 +62,8 @@ namespace MTGInstaller.Options {
 
 		[Option('f', "force", HelpText = "Skip version checks (unsupported!)")]
 		public bool SkipVersionChecks { get; set; } = false;
+
+		[Option('c', "components", HelpText = "Add custom components through a YAML file")]
+		public IEnumerable<string> CustomComponentFiles { get; set; }
 	}
 }

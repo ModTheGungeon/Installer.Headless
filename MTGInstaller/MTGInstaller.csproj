@@ -42,7 +42,6 @@
     <Compile Include="src\ExePatcher.cs" />
     <Compile Include="src\Headless\Options.cs" />
     <Compile Include="src\Headless\Logger.cs" />
-    <Compile Include="src\Headless\Program.cs" />
     <Compile Include="src\Headless\Installer.cs" />
     <Compile Include="src\Headless\Downloader.cs" />
     <Compile Include="src\Headless\Autodetector.cs" />
@@ -51,6 +50,7 @@
     <Compile Include="src\Headless\YAML\ETGModComponent.cs" />
     <Compile Include="src\Headless\YAML\ComponentMetadata.cs" />
     <Compile Include="src\Headless\YAML\GungeonMetadata.cs" />
+    <Compile Include="src\Headless\Program.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />
@@ -69,8 +69,8 @@
     <EmbeddedResource Include="gfx\logo.png">
       <LogicalName>gfx::logo</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="res\versions.txt">
-      <LogicalName>res::versions</LogicalName>
+    <EmbeddedResource Include="res\custom-components-template.yml">
+      <LogicalName>res::custom-components-template</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

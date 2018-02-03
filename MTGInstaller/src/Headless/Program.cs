@@ -87,30 +87,42 @@ namespace MTGInstaller {
 		public static int ComponentsMain(ComponentsOptions opts) {
 			_SetupDownloader(opts.HTTP);
 
-			if (opts.Name != null) {
-				ETGModComponent component;
-				if (Downloader.Components.TryGetValue(opts.Name, out component)) {
-					Console.WriteLine($"Name: {component.Name}");
-					Console.WriteLine($"Author: {component.Author}");
-					if (component.Description.Contains("\n")) {
-						Console.WriteLine($"Description:");
-						Console.WriteLine($"  {component.Description.Replace("\n", "\n  ")}");
-					} else {
-						Console.WriteLine($"Description: {component.Description}");
-					}
-					Console.WriteLine("Versions:");
-					foreach (var ver in component.Versions) {
-						Console.WriteLine($"  {ver}");
-					}
-				} else {
-					Console.WriteLine($"Component {opts.Name} doesn't exist or isn't in the official list.");
-					return 1;
-				}
-				return 0;
+			foreach (var component_file in opts.CustomComponentFiles) {
+				Logger.Debug($"Adding custom component file: {component_file}");
+				Downloader.AddComponentsFile(File.ReadAllText(component_file));
 			}
 
 			foreach (var com in Downloader.Components) {
 				Console.WriteLine(com.Value);
+			}
+			return 0;
+		}
+
+		public static int ComponentMain(ComponentOptions opts) {
+			_SetupDownloader(opts.HTTP);
+
+			foreach (var component_file in opts.CustomComponentFiles) {
+				Logger.Debug($"Adding custom component file: {component_file}");
+				Downloader.AddComponentsFile(File.ReadAllText(component_file));
+			}
+
+			ETGModComponent component;
+			if (Downloader.Components.TryGetValue(opts.Name, out component)) {
+				Console.WriteLine($"Name: {component.Name}");
+				Console.WriteLine($"Author: {component.Author}");
+				if (component.Description.Contains("\n")) {
+					Console.WriteLine($"Description:");
+					Console.WriteLine($"  {component.Description.Replace("\n", "\n  ")}");
+				} else {
+					Console.WriteLine($"Description: {component.Description}");
+				}
+				Console.WriteLine("Versions:");
+				foreach (var ver in component.Versions) {
+					Console.WriteLine($"  {ver}");
+				}
+			} else {
+				Console.WriteLine($"Component {opts.Name} doesn't exist or isn't in the official list.");
+				return 1;
 			}
 			return 0;
 		}
@@ -123,6 +135,11 @@ namespace MTGInstaller {
 			if (path == null) {
 				Logger.Error($"Failed to autodetect an EtG installation - please use the '--executable' option to specify the location of {Autodetector.ExeName}");
 				return 1;
+			}
+
+			foreach (var component_file in opts.CustomComponentFiles) {
+				Logger.Debug($"Adding custom component file: {component_file}");
+				Downloader.AddComponentsFile(File.ReadAllText(component_file));
 			}
 
 			Logger.Info($"EXE path: {path}");
@@ -194,11 +211,12 @@ namespace MTGInstaller {
 		}
 
 		public static int Main(string[] args) {
-			var result = Parser.Default.ParseArguments<DownloadOptions, AutodetectOptions, ComponentsOptions, InstallOptions>(args);
+			var result = Parser.Default.ParseArguments<DownloadOptions, AutodetectOptions, ComponentsOptions, ComponentOptions, InstallOptions>(args);
 			return result.MapResult(
 				(DownloadOptions opts) => DownloadMain(opts),
 				(AutodetectOptions opts) => AutodetectMain(opts),
 				(ComponentsOptions opts) => ComponentsMain(opts),
+				(ComponentOptions opts) => ComponentMain(opts),
 				(InstallOptions opts) => InstallMain(opts),
 				errors => 1
 			);

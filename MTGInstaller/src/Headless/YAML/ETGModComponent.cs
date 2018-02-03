@@ -29,7 +29,7 @@ namespace MTGInstaller.YAML {
 
 		public override string ToString() {
 			//if (Beta) return $"[β {Key}] {DisplayName}";
-			return $"{Name} w/ {Versions.Length} version(s) (last update: {Versions[0].ReleaseDate})";
+			return $"{Name} w/ {Versions.Length} version(s) (last update: {Versions[0].ReleaseDate ?? "N/A"})";
 		}
 	}
 }
