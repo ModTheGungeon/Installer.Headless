@@ -39,25 +39,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\YAML\ComponentMetadata.cs" />
+    <Compile Include="src\YAML\ETGModComponent.cs" />
+    <Compile Include="src\YAML\ETGModVersion.cs" />
+    <Compile Include="src\YAML\GungeonMetadata.cs" />
+    <Compile Include="src\YAML\SerializationHelper.cs" />
+    <Compile Include="src\Autodetector.cs" />
+    <Compile Include="src\Downloader.cs" />
     <Compile Include="src\ExePatcher.cs" />
-    <Compile Include="src\Headless\Options.cs" />
-    <Compile Include="src\Headless\Logger.cs" />
-    <Compile Include="src\Headless\Installer.cs" />
-    <Compile Include="src\Headless\Downloader.cs" />
-    <Compile Include="src\Headless\Autodetector.cs" />
-    <Compile Include="src\Headless\YAML\ETGModVersion.cs" />
-    <Compile Include="src\Headless\YAML\SerializationHelper.cs" />
-    <Compile Include="src\Headless\YAML\ETGModComponent.cs" />
-    <Compile Include="src\Headless\YAML\ComponentMetadata.cs" />
-    <Compile Include="src\Headless\YAML\GungeonMetadata.cs" />
-    <Compile Include="src\Headless\Program.cs" />
+    <Compile Include="src\Installer.cs" />
+    <Compile Include="src\Logger.cs" />
+    <Compile Include="src\Options.cs" />
+    <Compile Include="src\Program.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />
-    <Folder Include="src\Headless\" />
-    <Folder Include="src\GUI\" />
     <Folder Include="res\" />
-    <Folder Include="src\Headless\YAML\" />
+    <Folder Include="src\YAML\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
