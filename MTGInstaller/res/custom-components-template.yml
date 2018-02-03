@@ -12,10 +12,12 @@
 #      path: /home/a/b/c/d.zip
 #      beta: true
 #      supported_gungeon: 1.0.1
+#      requires_patched_exe: true
 #    - key: my0.2.0
 #      name: My 0.2.0 build
 #      release_date: 01/02/03 04:05:06
 #      path: 'C:\My 0.2.0 build\ETGMOD.zip'
+#      requires_patched_exe: false
 #- name: MyCustomAPI
 #  versions:
 #    - key: latest

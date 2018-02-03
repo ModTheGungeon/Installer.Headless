@@ -152,7 +152,7 @@ namespace MTGInstaller {
 			Installer.Backup(opts.ForceBackup);
 
 			var used_components = new HashSet<ETGModComponent>();
-
+			
 			var component_strs = opts.Components.Split(';');
 			foreach (var com_str in component_strs) {
 				var split = com_str.Split(new char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
@@ -200,7 +200,8 @@ namespace MTGInstaller {
 								Logger.Error(e.Message);
 							}
 						}
-						Installer.Install(installable, opts.LeavePatchDLLs);
+
+						Installer.InstallComponent(installable, opts.LeavePatchDLLs);
 					}
 				} else {
 					Console.WriteLine($"Component {component_name} doesn't exist in the list of components.");

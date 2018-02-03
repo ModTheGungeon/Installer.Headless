@@ -24,6 +24,9 @@ namespace MTGInstaller.YAML {
 		[YamlMember(Alias = "supported_gungeon")]
 		public string SupportedGungeon { set; get; } = null;
 
+		[YamlMember(Alias = "requires_patched_exe")]
+		public bool RequiresPatchedExe { set; get; } = false;
+
 		public override string ToString() {
 			if (Beta) return $"[{Key} β] {DisplayName} ({ReleaseDate})";
 			return $"[{Key} R] {DisplayName} ({ReleaseDate})";

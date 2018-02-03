@@ -18,6 +18,7 @@ namespace MTGInstaller {
 		const string BACKUP_ROOT_NAME = "Root";
 		const string TMP_PATCHED_EXE_NAME = "EtG.patched";
 
+		public bool ExePatched = false;
 		public string GameDir;
 		public Downloader Downloader;
 
@@ -120,7 +121,10 @@ namespace MTGInstaller {
 			}
 		}
 
-		private void _PatchExe() {
+		public void PatchExe() {
+			if (ExePatched) return;
+			ExePatched = true;
+
 			if (Downloader.GungeonMetadata.ExeOrigSubsitutions == null) return;
 			_Logger.Info("Patching executable to substitute symbols");
 
@@ -161,9 +165,7 @@ namespace MTGInstaller {
 			}
 		}
 
-
-		public void Install(InstallableComponent comp, bool leave_mmdlls = false) {
-			_PatchExe();
+		public void InstallComponent(InstallableComponent comp, bool leave_mmdlls = false) {
 			comp.Install(this, leave_mmdlls);
 		}
 
@@ -187,6 +189,7 @@ namespace MTGInstaller {
 			public string VersionName;
 			public string ExtractedPath;
 			public string SupportedGungeon;
+			public bool RequiresPatchedExe;
 
 			public IList<string> InstallInSubdir { get { return Metadata?.InstallInSubdir; } }
 			public IList<string> InstallInManaged { get { return Metadata?.InstallInManaged; } }
@@ -208,7 +211,7 @@ namespace MTGInstaller {
 			}
 
 
-			public InstallableComponent(string name, string version_key, string version_name, string extracted_path, string supported_gungeon, IList<string> dir_entries) {
+			public InstallableComponent(string name, string version_key, string version_name, string extracted_path, string supported_gungeon, bool requires_patched_exe, IList<string> dir_entries) {
 				_Logger = new Logger($"Component {name}");
 
 				_Name = name;
@@ -216,6 +219,7 @@ namespace MTGInstaller {
 				VersionName = version_name;
 				ExtractedPath = extracted_path;
 				SupportedGungeon = supported_gungeon;
+				RequiresPatchedExe = requires_patched_exe;
 
 				foreach (var ent in dir_entries) {
 					var filename = Path.GetFileName(ent);
@@ -244,6 +248,7 @@ namespace MTGInstaller {
 				ver.DisplayName,
 				dl.ExtractedPath,
 				ver.SupportedGungeon,
+				ver.RequiresPatchedExe,
 				Directory.GetFileSystemEntries(dl.ExtractedPath)
 			) { }
 
@@ -320,6 +325,8 @@ namespace MTGInstaller {
 
 			public void Install(Installer installer, bool leave_mmdlls = false) {
 				var managed = installer.ManagedDir;
+
+				if (RequiresPatchedExe) installer.PatchExe();
 
 				_Install("assembly", Assemblies, managed);
 				_Install("MonoMod patch DLL", PatchDLLs, managed);
