@@ -38,8 +38,8 @@ namespace MTGInstaller {
 		public string BackupRootDir { get { return Path.Combine(BackupDir, BACKUP_ROOT_NAME); } }
 		public string BackupManagedDir { get { return Path.Combine(BackupDir, BACKUP_MANAGED_NAME); } }
 
-		public void Restore() {
-			if (!Directory.Exists(BackupDir)) {
+		public void Restore(bool force = false) {
+			if (!force && !Directory.Exists(BackupDir)) {
 				_Logger.Info($"Backup doesn't exist - not restoring");
 				return;
 			}
