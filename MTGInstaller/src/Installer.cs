@@ -182,7 +182,7 @@ namespace MTGInstaller {
 			public List<string> Dirs = new List<string>();
 			public ComponentMetadata Metadata;
 			private string _Name;
-			public string Name { get { return Metadata.Name ?? _Name; } }
+			public string Name { get { return Metadata?.Name ?? _Name; } }
 			public string VersionKey;
 			public string VersionName;
 			public string ExtractedPath;
