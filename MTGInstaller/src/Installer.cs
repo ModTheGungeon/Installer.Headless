@@ -10,7 +10,7 @@ using MTGInstaller.YAML;
 
 namespace MTGInstaller {
 	public class Installer {
-		public static readonly Version Version = new Version(0, 1);
+		public static readonly string Version = "2018.03.02";
 		public static Logger _Logger = new Logger(nameof(Installer));
 
 		const string BACKUP_DIR_NAME = ".ETGModBackup";
