@@ -23,8 +23,12 @@ namespace MTGInstaller {
 		public Downloader Downloader;
 
 		public Installer(Downloader downloader, string exe_path) {
-			GameDir = Path.GetDirectoryName(exe_path);
+			ChangeExePath(exe_path);
 			Downloader = downloader;
+		}
+
+		public void ChangeExePath(string exe_path) {
+			GameDir = Path.GetDirectoryName(exe_path);
 		}
 
 		public string ExeFile { get { return Path.Combine(GameDir, Autodetector.ExeName); } }
