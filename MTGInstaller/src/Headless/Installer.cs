@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -14,6 +15,7 @@ namespace MTGInstaller {
 		const string BACKUP_DIR_NAME = ".ETGModBackup";
 		const string BACKUP_MANAGED_NAME = "Managed";
 		const string BACKUP_ROOT_NAME = "Root";
+		const string TMP_PATCHED_EXE_NAME = "EtG.patched";
 
 		public string GameDir;
 		public Downloader Downloader;
@@ -23,6 +25,8 @@ namespace MTGInstaller {
 			Downloader = downloader;
 		}
 
+		public string ExeFile { get { return Path.Combine(GameDir, Autodetector.ExeName); } }
+		public string PatchedExeFile { get { return Path.Combine(GameDir, TMP_PATCHED_EXE_NAME); } }
 		public string ManagedDir { get { return Path.Combine(GameDir, "EtG_Data", "Managed"); } }
 		public string BackupDir { get { return Path.Combine(GameDir, BACKUP_DIR_NAME); } }
 		public string BackupRootDir { get { return Path.Combine(BackupDir, BACKUP_ROOT_NAME); } }
@@ -36,6 +40,11 @@ namespace MTGInstaller {
 
 			_Logger.Info("Restoring from backup");
 
+			if (File.Exists(PatchedExeFile)) {
+				_Logger.Info($"Removing old temporary patched executable");
+				File.Delete(PatchedExeFile);
+			}
+
 			if (!Directory.Exists(BackupRootDir)) _Logger.Warn("Root directory backup is missing - did an error occur while creating the backup? The game files might be corrupted.");
 			else {
 				var root_entries = Directory.GetFileSystemEntries(BackupRootDir);
@@ -45,7 +54,9 @@ namespace MTGInstaller {
 
 					_Logger.Debug($"Restoring root file: {file}");
 
-					File.Copy(ent, Path.Combine(GameDir, file), overwrite: true);
+					var target = Path.Combine(GameDir, file);
+					if (File.Exists(target)) File.Delete(target);
+					File.Copy(ent, target);
 				}
 			}
 
@@ -108,8 +119,51 @@ namespace MTGInstaller {
 			}
 		}
 
-		public void Install(InstallableComponent comp) {
-			comp.Install(this);
+		private void _PatchExe() {
+			if (Downloader.GungeonMetadata.ExeOrigSubsitutions == null) return;
+			_Logger.Info("Patching executable to substitute symbols");
+
+			string perm_octal = null; // unix only
+			if (Autodetector.Unix) {
+				Process p = Process.Start(new ProcessStartInfo {
+					FileName = "/usr/bin/stat",
+					UseShellExecute = false,
+					Arguments = $"-c '%a' '{ExeFile}'",
+					RedirectStandardOutput = true
+				});
+				perm_octal = p.StandardOutput.ReadToEnd().Trim();
+				p.WaitForExit();
+				p.Close();
+
+				_Logger.Debug($"Permissions on executable: {perm_octal}");
+			}
+
+			using (var reader = new BinaryReader(File.OpenRead(ExeFile)))
+			using (var writer = new BinaryWriter(File.OpenWrite(PatchedExeFile))) {
+				ExePatcher.Patch(reader, writer, Downloader.GungeonMetadata.ExeOrigSubsitutions);
+			}
+
+			_Logger.Debug($"Replacing executable");
+			if (File.Exists(ExeFile)) File.Delete(ExeFile);
+			File.Move(PatchedExeFile, ExeFile);
+
+			if (Autodetector.Unix) {
+				_Logger.Info($"Restoring executable permissions");
+
+				Process p = Process.Start(new ProcessStartInfo {
+					FileName = "/usr/bin/chmod",
+					UseShellExecute = false,
+					Arguments = $"'{perm_octal}' '{ExeFile}'"
+				});
+				p.WaitForExit();
+				p.Close();
+			}
+		}
+
+
+		public void Install(InstallableComponent comp, bool leave_mmdlls = false) {
+			_PatchExe();
+			comp.Install(this, leave_mmdlls);
 		}
 
 		public class InstallableComponent {
@@ -154,7 +208,7 @@ namespace MTGInstaller {
 
 
 			public InstallableComponent(string name, string version_key, string version_name, string extracted_path, string supported_gungeon, IList<string> dir_entries) {
-				_Logger = new Logger($"InstallableComponent:{name}");
+				_Logger = new Logger($"Component {name}");
 
 				_Name = name;
 				VersionKey = version_key;
@@ -263,7 +317,7 @@ namespace MTGInstaller {
 				}
 			}
 
-			public void Install(Installer installer) {
+			public void Install(Installer installer, bool leave_mmdlls = false) {
 				var managed = installer.ManagedDir;
 
 				_Install("assembly", Assemblies, managed);
@@ -310,14 +364,16 @@ namespace MTGInstaller {
 					File.Move(patch_target_tmp, patch_target_dll);
 				}
 
-				foreach (var dll in PatchDLLs) {
-					if (!File.Exists(Path.Combine(managed, dll))) continue;
+				if (!leave_mmdlls) {
+					foreach (var dll in PatchDLLs) {
+						if (!File.Exists(Path.Combine(managed, dll))) continue;
 
-					_Logger.Debug($"Cleaning up patch DLL {dll}");
-					File.Delete(Path.Combine(managed, dll));
+						_Logger.Debug($"Cleaning up patch DLL {dll}");
+						File.Delete(Path.Combine(managed, dll));
+					}
 				}
 
-				_Logger.Debug($"Cleaning up patch DLL MDB/PDBs");
+				_Logger.Debug($"Cleaning up patched DLL MDB/PDBs");
 				foreach (var ent in Directory.GetFileSystemEntries(managed)) {
 					if (ent.EndsWith($"{TMP_PATCH_SUFFIX}.mdb", StringComparison.InvariantCulture)) File.Delete(ent);
 				}

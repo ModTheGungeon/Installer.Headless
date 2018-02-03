@@ -8,6 +8,8 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Threading;
 using System.Linq;
+using MTGInstaller.YAML;
+using System.Text;
 
 namespace MTGInstaller {
 	// I should feel bad for being too lazy to implement this on my own.
@@ -16,7 +18,7 @@ namespace MTGInstaller {
 	// Copied from old installer ~ zatherz
 	public static class ExePatcher {
 		public static IEnumerable<byte> GetByteStream(BinaryReader reader) {
-			const int bufferSize = 8192;
+			const int bufferSize = 90 ^ 2;
 			byte[] buffer;
 			do {
 				buffer = reader.ReadBytes(bufferSize);
@@ -24,13 +26,13 @@ namespace MTGInstaller {
 			} while (buffer.Length != 0);
 		}
 
-		public static void Patch(BinaryReader reader, BinaryWriter writer, IEnumerable<Tuple<byte[], byte[]>> searchAndReplace) {
-			foreach (byte d in Patch(GetByteStream(reader), searchAndReplace)) { writer.Write(d); }
+		public static void Patch(BinaryReader reader, BinaryWriter writer, IEnumerable<GungeonMetadata.ExeOrigSubsitution> substitutions) {
+			foreach (byte d in Patch(GetByteStream(reader), substitutions)) { writer.Write(d); }
 		}
 
-		public static IEnumerable<byte> Patch(IEnumerable<byte> source, IEnumerable<Tuple<byte[], byte[]>> searchAndReplace) {
-			foreach (var s in searchAndReplace) {
-				source = Patch(source, s.Item1, s.Item2);
+		public static IEnumerable<byte> Patch(IEnumerable<byte> source, IEnumerable<GungeonMetadata.ExeOrigSubsitution> substitutions) {
+			foreach (var s in substitutions) {
+				source = Patch(source, Encoding.UTF8.GetBytes(s.From), Encoding.UTF8.GetBytes(s.To));
 			}
 			return source;
 		}

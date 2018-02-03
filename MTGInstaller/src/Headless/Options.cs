@@ -65,5 +65,8 @@ namespace MTGInstaller.Options {
 
 		[Option('c', "components", HelpText = "Add custom components through a YAML file")]
 		public IEnumerable<string> CustomComponentFiles { get; set; }
+
+		[Option('d', "leave-patch-dlls", HelpText = "Don't delete the .mm.dll assemblies after finishing patching")]
+		public bool LeavePatchDLLs { get; set; } = false;
 	}
 }

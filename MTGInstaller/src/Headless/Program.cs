@@ -200,7 +200,7 @@ namespace MTGInstaller {
 								Logger.Error(e.Message);
 							}
 						}
-						Installer.Install(installable);
+						Installer.Install(installable, opts.LeavePatchDLLs);
 					}
 				} else {
 					Console.WriteLine($"Component {component_name} doesn't exist in the list of components.");

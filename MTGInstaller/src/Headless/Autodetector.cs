@@ -60,6 +60,8 @@ namespace MTGInstaller {
 			}
 		}
 
+		public static bool Unix { get { return Platform == Platform.Linux || Platform == Platform.Mac; } }
+
 		private static Distributor _Distributor = Distributor.Unknown;
 		public static Distributor Distributor {
 			get {
