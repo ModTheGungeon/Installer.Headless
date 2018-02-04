@@ -39,7 +39,7 @@ namespace MTGInstaller.Options {
 		[Option('h', "http", HelpText = "Force use of insecure HTTP instead of HTTPS")]
 		public bool HTTP { get; set; }
 
-		[Value(0, MetaName = "name", HelpText = "Name of a component (to get specific details)")]
+		[Value(0, MetaName = "name", HelpText = "Name of a component (to get specific details)", Required = true)]
 		public string Name { get; set; }
 
 		[Option('c', "components", HelpText = "Add custom components through a YAML file")]
