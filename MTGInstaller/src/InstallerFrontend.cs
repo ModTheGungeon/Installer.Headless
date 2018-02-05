@@ -128,9 +128,8 @@ namespace MTGInstaller {
 
 			Install(real_components, exe_path);
 		}
-		
 
-		public void Install(IEnumerable<ComponentVersion> components, string exe_path = null) {
+		public void Install(IEnumerable<ComponentVersion> components, string exe_path = null, Action<ComponentVersion> component_installed = null) {
 			_Installer.ChangeExePath(exe_path);
 
 			var used_components = new HashSet<ETGModComponent>();
@@ -151,6 +150,7 @@ namespace MTGInstaller {
 					}
 
 					_Installer.InstallComponent(installable, Options.HasFlag(InstallerOptions.LeavePatchDLLs));
+					if (component_installed != null) component_installed.Invoke(pair);
 				}
 			}
 		}
