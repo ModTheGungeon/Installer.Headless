@@ -154,5 +154,11 @@ namespace MTGInstaller {
 				}
 			}
 		}
+
+		public void Uninstall(string exe_path) {
+			_Installer.ChangeExePath(exe_path);
+
+			_Installer.Restore(force: true);
+		}
 	}
 }

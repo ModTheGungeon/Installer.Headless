@@ -7,32 +7,12 @@ using MTGInstaller.YAML;
 
 namespace MTGInstaller {
 	public static class Program {
-		public static Installer Installer;
-		public static Downloader Downloader;
 		public static Logger Logger = new Logger("ETGMod Installer");
 
 		private static void _WriteErrorLine(string line) {
 			using (var stderr = Console.OpenStandardError())
 			using (var writer = new StreamWriter(stderr)) {
 				writer.WriteLine(line);
-			}
-		}
-
-		private static void _SetupDownloader(bool force_http = false) {
-			if (Downloader != null) return;
-			Downloader = new Downloader(force_http);
-		}
-
-		private static void _SetupInstaller(string game_dir, bool force_http = false) {
-			if (Installer != null) return;
-			_SetupDownloader(force_http);
-			try {
-				Installer = new Installer(Downloader, game_dir);
-			} catch (System.Net.WebException e) {
-				var resp = e.Response as System.Net.HttpWebResponse;
-				if (resp?.StatusCode == System.Net.HttpStatusCode.NotFound) Console.WriteLine($"404 error while trying to download version list");
-				else Console.WriteLine($"Unhandled error occured while downloading version list: {e}");
-				Environment.Exit(1);
 			}
 		}
 
@@ -110,6 +90,18 @@ namespace MTGInstaller {
 			return 0;
 		}
 
+		public static int UninstallMain(UninstallOptions opts) {
+			var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
+			var path = opts.Executable;
+			if (path == null) path = Autodetector.ExePath;
+			if (path == null) {
+				Logger.Error($"Failed to autodetect an EtG installation - please use the '--executable' option to specify the location of {Autodetector.ExeName}");
+				return 1;
+			}
+			installer.Uninstall(path);
+			return 0;
+		}
+
 		public static int InstallMain(InstallOptions opts) {
 			var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
 			if (opts.HTTP) installer.Options |= InstallerFrontend.InstallerOptions.HTTP;
@@ -155,13 +147,14 @@ namespace MTGInstaller {
 		}
 
 		public static int Main(string[] args) {
-			var result = Parser.Default.ParseArguments<DownloadOptions, AutodetectOptions, ComponentsOptions, ComponentOptions, InstallOptions>(args);
+			var result = Parser.Default.ParseArguments<DownloadOptions, AutodetectOptions, ComponentsOptions, ComponentOptions, InstallOptions, UninstallOptions>(args);
 			return result.MapResult(
 				(DownloadOptions opts) => DownloadMain(opts),
 				(AutodetectOptions opts) => AutodetectMain(opts),
 				(ComponentsOptions opts) => ComponentsMain(opts),
 				(ComponentOptions opts) => ComponentMain(opts),
 				(InstallOptions opts) => InstallMain(opts),
+				(UninstallOptions opts) => UninstallMain(opts),
 				errors => 1
 			);
 		}

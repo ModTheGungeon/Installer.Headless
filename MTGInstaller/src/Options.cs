@@ -46,7 +46,7 @@ namespace MTGInstaller.Options {
 		public IEnumerable<string> CustomComponentFiles { get; set; }
 	}
 
-	[Verb("install", HelpText = "Install ETGMod")]
+	[Verb("install", HelpText = "Install components")]
 	public class InstallOptions {
 		[Value(0, MetaName = "components", HelpText = "Semicolon separated list of components and versions (e.g. 'ETGMod@0.3;Example@1.0')", Required = true)]
 		public string Components { get; set; }
@@ -68,5 +68,11 @@ namespace MTGInstaller.Options {
 
 		[Option('d', "leave-patch-dlls", HelpText = "Don't delete the .mm.dll assemblies after finishing patching")]
 		public bool LeavePatchDLLs { get; set; } = false;
+	}
+
+	[Verb("uninstall", HelpText = "Revert all components")]
+	public class UninstallOptions {
+		[Option('e', "executable", HelpText = "Path to the executable (required if autodetection fails; you'll be told to use this option if that happens)")]
+		public string Executable { get; set; }
 	}
 }
