@@ -275,9 +275,9 @@ namespace MTGInstaller {
 						if (supported_version_obj == gungeon_version_obj) {
 							_Logger.Debug("Versions match (through System.Version comparison).");
 						} else if (supported_version_obj > gungeon_version_obj) {
-							throw new VersionMismatchException($"Version mismatch: your installation of Gungeon appears to be older than the version {Name} {VersionName} supports ({version} vs {SupportedGungeon}). You can update or try using '--force' to skip this check at your own responsibility.");
+							throw new VersionMismatchException($"Version mismatch: your installation of Gungeon appears to be older than the version {Name} {VersionName} supports ({version} vs {SupportedGungeon}). You can update or try force skipping this check at your own responsibility.");
 						} else {
-							throw new VersionMismatchException($"Version mismatch: your installation of Gungeon appears to be newer than the version {Name} {VersionName} supports ({version} vs {SupportedGungeon}). You can try using '--force' to skip this check at your own responsibility.");
+							throw new VersionMismatchException($"Version mismatch: your installation of Gungeon appears to be newer than the version {Name} {VersionName} supports ({version} vs {SupportedGungeon}). You can try force skipping this check at your own responsibility.");
 						}
 					}
 				}
