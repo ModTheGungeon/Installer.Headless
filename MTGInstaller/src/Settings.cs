@@ -11,11 +11,6 @@ namespace MTGInstaller {
 		public const string CUSTOM_COMPONENTS_YML_NAME = "custom-components.yml";
 		public const string SETTINGS_YML_NAME = "settings.yml";
 
-		public static readonly Dictionary<string, string> Entries = new Dictionary<string, string> {
-			{ SETTINGS_YML_NAME, SettingsFile },
-			{ CUSTOM_COMPONENTS_YML_NAME, CustomComponentsFile }
-		};
-
 		public static string SettingsDir {
 			get {
 				var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), DIR_NAME);

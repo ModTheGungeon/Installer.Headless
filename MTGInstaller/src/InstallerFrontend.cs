@@ -14,16 +14,6 @@ namespace MTGInstaller {
 			LeavePatchDLLs = 8
 		}
 
-		public struct ComponentInfo {
-			public ComponentInfo(string name, string version) {
-				Name = name;
-				Version = version;
-			}
-
-			public string Name;
-			public string Version;
-		}
-
 		private static Logger _Logger = new Logger("InstallerFrontend");
 		private Installer _Installer;
 		private Downloader _Downloader;

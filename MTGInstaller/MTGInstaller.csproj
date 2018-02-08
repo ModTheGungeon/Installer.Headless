@@ -54,6 +54,7 @@
     <Compile Include="src\ComponentVersion.cs" />
     <Compile Include="src\InstallerFrontend.cs" />
     <Compile Include="src\Settings.cs" />
+    <Compile Include="src\ComponentInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />

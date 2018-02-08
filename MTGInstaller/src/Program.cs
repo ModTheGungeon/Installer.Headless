@@ -22,7 +22,7 @@ namespace MTGInstaller {
 			try {
 				var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
 			
-				installer.Download(new InstallerFrontend.ComponentInfo(opts.Component, opts.Version), opts.Force).Dispose();
+				installer.Download(new ComponentInfo(opts.Component, opts.Version), opts.Force).Dispose();
 				return 0;
 			} catch (Exception e) {
 				_WriteError(e);
@@ -138,7 +138,7 @@ namespace MTGInstaller {
 					installer.LoadComponentsFile(component_file);
 				}
 
-				var component_list = new List<InstallerFrontend.ComponentInfo>();
+				var component_list = new List<ComponentInfo>();
 
 				var component_strs = opts.Components.Split(';');
 				foreach (var com_str in component_strs) {
@@ -149,7 +149,7 @@ namespace MTGInstaller {
 						return 1;
 					}
 
-					component_list.Add(new InstallerFrontend.ComponentInfo(split[0], split[1]));
+					component_list.Add(new ComponentInfo(split[0], split.Length == 2 ? split[1] : null));
 				}
 
 				installer.Install(component_list, opts.Executable);

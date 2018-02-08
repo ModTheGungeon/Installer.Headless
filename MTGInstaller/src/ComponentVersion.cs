@@ -10,5 +10,7 @@ namespace MTGInstaller {
 			Component = component;
 			Version = version;
 		}
+
+		public ComponentInfo ComponentInfo { get { return new ComponentInfo(Component.Name, Version.Key); } }
 	}
 }
