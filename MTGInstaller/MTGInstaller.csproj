@@ -53,6 +53,7 @@
     <Compile Include="src\Program.cs" />
     <Compile Include="src\ComponentVersion.cs" />
     <Compile Include="src\InstallerFrontend.cs" />
+    <Compile Include="src\Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />
@@ -71,6 +72,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="res\custom-components-template.yml">
       <LogicalName>res::custom-components-template</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="res\settings-template.yml">
+      <LogicalName>res::settings-template</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

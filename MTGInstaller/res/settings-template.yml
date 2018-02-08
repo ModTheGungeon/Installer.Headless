@@ -1,0 +1,7 @@
+﻿VERSION: 1
+executable_path: ~
+force_http: false
+force_backup: false
+skip_version_checks: false
+custom_component_files: []
+leave_patch_dlls: false

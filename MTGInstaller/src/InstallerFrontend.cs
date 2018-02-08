@@ -24,6 +24,7 @@ namespace MTGInstaller {
 			public string Version;
 		}
 
+		private static Logger _Logger = new Logger("InstallerFrontend");
 		private Installer _Installer;
 		private Downloader _Downloader;
 
@@ -37,13 +38,28 @@ namespace MTGInstaller {
 		public class InstallationFailedException : Exception { public InstallationFailedException(string msg) : base(msg) {} }
 
 		public InstallerFrontend(InstallerOptions options = InstallerOptions.None) {
-			Options = options;
+			var settings = Settings.Instance;
+
+			if (settings.SkipVersionChecks) Options |= InstallerOptions.SkipVersionChecks;
+			if (settings.ForceHTTP) Options |= InstallerOptions.HTTP;
+			if (settings.LeavePatchDLLs) Options |= InstallerOptions.LeavePatchDLLs;
+			if (settings.ForceBackup) Options |= InstallerOptions.ForceBackup;
+			Options |= options;
+
 			_Downloader = new Downloader(force_http: Options.HasFlag(InstallerOptions.HTTP));
 			_Installer = new Installer(_Downloader, exe_path: null);
+
+			foreach (var ent in settings.CustomComponentFiles) {
+				LoadComponentsFile(ent);
+			}
 		}
 
 		public void LoadComponentsFile(string path) {
-			_Downloader.AddComponentsFile(File.ReadAllText(path));
+			try {
+				_Downloader.AddComponentsFile(File.ReadAllText(path));
+			} catch (FileNotFoundException) {
+				throw new InstallationFailedException($"Local component file '{path}' doesn't exist - verify your settings?");
+			}
 		}
 
 		public ETGModComponent TryGetComponent(string name) {
@@ -79,7 +95,10 @@ namespace MTGInstaller {
 				}
 
 				try {
-					return _Downloader.Download(version, dest);
+					_Logger.Info($"OPERATION: Download. Target: {dest}");
+					var dl = _Downloader.Download(version, dest);
+					_Logger.Info($"OPERATION COMPLETED SUCCESSFULLY");
+					return dl;
 				} catch (System.Net.WebException e) {
 					var resp = e.Response as System.Net.HttpWebResponse;
 					if (resp?.StatusCode == System.Net.HttpStatusCode.NotFound) {
@@ -92,7 +111,16 @@ namespace MTGInstaller {
 			throw new InstallationFailedException($"Component {component_info.Name} doesn't exist.");
 		}
 
+		private string _GetExePath(string suggestion = null) {
+			if (suggestion == null) suggestion = Settings.Instance.ExecutablePath;
+			if (suggestion == null) suggestion = Autodetector.ExePath;
+			if (suggestion == null) throw new InstallationFailedException($"Can't find executable - please manually provide a path to {Autodetector.ExeName} manually");
+			return suggestion;
+		}
+
 		public void Install(IEnumerable<ComponentInfo> components, string exe_path = null) {
+			exe_path = _GetExePath(exe_path);
+
 			var real_components = new List<ComponentVersion>();
 			var used_components = new HashSet<ETGModComponent>();
 			var gungeon_version = Autodetector.GetVersionIn(exe_path);
@@ -130,8 +158,11 @@ namespace MTGInstaller {
 		}
 
 		public void Install(IEnumerable<ComponentVersion> components, string exe_path = null, Action<ComponentVersion> component_installed = null) {
+			exe_path = _GetExePath(exe_path);
 			_Installer.ChangeExePath(exe_path);
 
+			_Logger.Info($"OPERATION: Install. Target: {exe_path}");
+			
 			var used_components = new HashSet<ETGModComponent>();
 			var gungeon_version = Autodetector.GetVersionIn(exe_path);
 
@@ -153,12 +184,19 @@ namespace MTGInstaller {
 					if (component_installed != null) component_installed.Invoke(pair);
 				}
 			}
+
+			_Logger.Info($"OPERATION COMPLETED SUCCESSFULLY");
 		}
 
-		public void Uninstall(string exe_path) {
+		public void Uninstall(string exe_path = null) {
+			exe_path = _GetExePath(exe_path);
 			_Installer.ChangeExePath(exe_path);
 
+			_Logger.Info($"OPERATION: Uninstall. Target: {exe_path}");
+
 			_Installer.Restore(force: true);
+
+			_Logger.Info($"OPERATION COMPLETED SUCCESSFULLY");
 		}
 	}
 }

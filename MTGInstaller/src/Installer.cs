@@ -21,6 +21,7 @@ namespace MTGInstaller {
 		const string BACKUP_MANAGED_NAME = "Managed";
 		const string BACKUP_ROOT_NAME = "Root";
 		const string TMP_PATCHED_EXE_NAME = "EtG.patched";
+		const string BACKUP_VERSION_FILE_NAME = "backup_version.txt";
 
 		public bool ExePatched = false;
 		public string GameDir;
@@ -41,6 +42,7 @@ namespace MTGInstaller {
 		public string BackupDir { get { return Path.Combine(GameDir, BACKUP_DIR_NAME); } }
 		public string BackupRootDir { get { return Path.Combine(BackupDir, BACKUP_ROOT_NAME); } }
 		public string BackupManagedDir { get { return Path.Combine(BackupDir, BACKUP_MANAGED_NAME); } }
+		public string BackupVersionFile { get { return Path.Combine(BackupDir, BACKUP_VERSION_FILE_NAME); } }
 
 		public void Restore(bool force = false) {
 			if (!force && !Directory.Exists(BackupDir)) {
@@ -49,6 +51,30 @@ namespace MTGInstaller {
 			}
 
 			_Logger.Info("Restoring from backup");
+
+			if (!File.Exists(BackupVersionFile)) _Logger.Warn("Backup version file is missing - did an error occur while creating the backup? The game files might be corrupted.");
+			else {
+				var ver = File.ReadAllText(BackupVersionFile);
+				if (ver == Autodetector.Version) {
+					_Logger.Debug($"Backup versions match");
+				} else {
+					_Logger.Debug($"Backup versions DON'T match");
+					try {
+						var bkp_ver_obj = new Version(ver);
+						var cur_ver_obj = new Version(Autodetector.Version);
+
+						if (cur_ver_obj > bkp_ver_obj) {
+							_Logger.Info($"Backup version is older - assuming game was updated, wiping backup directory so that a new backup can be made");
+						} else {
+							_Logger.Warn($"Game version is older than the current backup - did you downgrade? Trying to carry on by wiping the backup directory so that a new backup can be made...");
+						}
+					} catch {
+						_Logger.Warn("Exception while comparing versions (did the Gungeon versioning scheme change?). This is probably bad. Assuming update, wiping backup directory so that a new backup can be made");
+					}
+					Directory.Delete(BackupDir, recursive: true);
+					return;
+				}
+			}
 
 			if (File.Exists(PatchedExeFile)) {
 				_Logger.Info($"Removing old temporary patched executable");
@@ -127,6 +153,9 @@ namespace MTGInstaller {
 					File.Copy(ent, Path.Combine(BackupManagedDir, file), overwrite: true);
 				}
 			}
+
+			_Logger.Debug($"Backed up for Gungeon {Autodetector.Version}");
+			File.WriteAllText(BackupVersionFile, Autodetector.Version);
 		}
 
 		public void PatchExe() {
@@ -303,7 +332,7 @@ namespace MTGInstaller {
 					var files = dir.GetFiles();
 					foreach (var file in files) {
 						var path = Path.Combine(destination, file.Name);
-						file.CopyTo(path, false);
+						file.CopyTo(path, overwrite: true);
 					}
 
 					foreach (var subdir in dirs) {

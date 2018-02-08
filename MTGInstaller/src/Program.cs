@@ -9,37 +9,47 @@ namespace MTGInstaller {
 	public static class Program {
 		public static Logger Logger = new Logger("ETGMod Installer");
 
-		private static void _WriteErrorLine(string line) {
+		private static void _WriteError(Exception ex) {
 			using (var stderr = Console.OpenStandardError())
 			using (var writer = new StreamWriter(stderr)) {
-				writer.WriteLine(line);
+				writer.WriteLine(ex.Message);
+
+				if (System.Environment.GetEnvironmentVariable("MTG_VERBOSE") != null) writer.WriteLine(ex.StackTrace);
 			}
 		}
 
 		public static int DownloadMain(DownloadOptions opts) {
-			var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
-			
 			try {
+				var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
+			
 				installer.Download(new InstallerFrontend.ComponentInfo(opts.Component, opts.Version), opts.Force).Dispose();
-			} catch (InstallerFrontend.InstallationFailedException e) {
-				_WriteErrorLine(e.Message);
+				return 0;
+			} catch (Exception e) {
+				_WriteError(e);
 				return 1;
 			}
-
-			return 0;
 		}
 
 		public static int AutodetectMain(AutodetectOptions opts) {
-			var path = Autodetector.ExePath;
-			if (path == null) Console.WriteLine("[Couldn't find the executable]");
-			else Console.WriteLine(path);
-			return 0;
+			try {
+				if (opts.Architecture != null) {
+					Autodetector.Architecture = (Architecture)Enum.Parse(typeof(Architecture), opts.Architecture);
+				}
+
+				var path = Autodetector.ExePath;
+				if (path == null) Console.WriteLine("[Couldn't find the executable]");
+				else Console.WriteLine(path);
+				return 0;
+			} catch (Exception e) {
+				_WriteError(e);
+				return 1;
+			}
 		}
 
 		public static int ComponentsMain(ComponentsOptions opts) {
-			var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
-
 			try {
+				var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
+
 				foreach (var component_file in opts.CustomComponentFiles) {
 					Logger.Debug($"Adding custom component file: {component_file}");
 					installer.LoadComponentsFile(component_file);
@@ -48,8 +58,8 @@ namespace MTGInstaller {
 				foreach (var com in installer.AvailableComponents) {
 					Console.WriteLine(com.Value);
 				}
-			} catch (InstallerFrontend.InstallationFailedException e) {
-				_WriteErrorLine(e.Message);
+			} catch (Exception e) {
+				_WriteError(e);
 				return 1;
 			}
 
@@ -57,9 +67,9 @@ namespace MTGInstaller {
 		}
 
 		public static int ComponentMain(ComponentOptions opts) {
-			var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
-
 			try {
+				var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
+
 				foreach (var component_file in opts.CustomComponentFiles) {
 					Logger.Debug($"Adding custom component file: {component_file}");
 					installer.LoadComponentsFile(component_file);
@@ -83,46 +93,50 @@ namespace MTGInstaller {
 					Console.WriteLine($"Component {opts.Name} doesn't exist or isn't in the official list.");
 					return 1;
 				}
-			} catch (InstallerFrontend.InstallationFailedException e) {
-				_WriteErrorLine(e.Message);
+			} catch (Exception e) {
+				_WriteError(e);
 				return 1;
 			}
 			return 0;
 		}
 
 		public static int UninstallMain(UninstallOptions opts) {
-			var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
-			var path = opts.Executable;
-			if (path == null) path = Autodetector.ExePath;
-			if (path == null) {
-				Logger.Error($"Failed to autodetect an EtG installation - please use the '--executable' option to specify the location of {Autodetector.ExeName}");
+			try {
+				if (opts.Architecture != null) {
+					Autodetector.Architecture = (Architecture)Enum.Parse(typeof(Architecture), opts.Architecture);
+				}
+
+				var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
+				var path = opts.Executable;
+				if (path == null) path = Autodetector.ExePath;
+				if (path == null) {
+					Logger.Error($"Failed to autodetect an EtG installation - please use the '--executable' option to specify the location of {Autodetector.ExeName}");
+					return 1;
+				}
+				installer.Uninstall(path);
+				return 0;
+			} catch (Exception e) {
+				_WriteError(e);
 				return 1;
 			}
-			installer.Uninstall(path);
-			return 0;
 		}
 
 		public static int InstallMain(InstallOptions opts) {
-			var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
-			if (opts.HTTP) installer.Options |= InstallerFrontend.InstallerOptions.HTTP;
-			if (opts.ForceBackup) installer.Options |= InstallerFrontend.InstallerOptions.ForceBackup;
-			if (opts.LeavePatchDLLs) installer.Options |= InstallerFrontend.InstallerOptions.LeavePatchDLLs;
-			if (opts.SkipVersionChecks) installer.Options |= InstallerFrontend.InstallerOptions.SkipVersionChecks;
-
-			var path = opts.Executable;
-			if (path == null) path = Autodetector.ExePath;
-			if (path == null) {
-				Logger.Error($"Failed to autodetect an EtG installation - please use the '--executable' option to specify the location of {Autodetector.ExeName}");
-				return 1;
-			}
-
 			try {
+				if (opts.Architecture != null) {
+					Autodetector.Architecture = (Architecture)Enum.Parse(typeof(Architecture), opts.Architecture);
+				}
+
+				var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
+				if (opts.HTTP) installer.Options |= InstallerFrontend.InstallerOptions.HTTP;
+				if (opts.ForceBackup) installer.Options |= InstallerFrontend.InstallerOptions.ForceBackup;
+				if (opts.LeavePatchDLLs) installer.Options |= InstallerFrontend.InstallerOptions.LeavePatchDLLs;
+				if (opts.SkipVersionChecks) installer.Options |= InstallerFrontend.InstallerOptions.SkipVersionChecks;
+
 				foreach (var component_file in opts.CustomComponentFiles) {
 					Logger.Debug($"Adding custom component file: {component_file}");
 					installer.LoadComponentsFile(component_file);
 				}
-
-				Logger.Info($"EXE path: {path}");
 
 				var component_list = new List<InstallerFrontend.ComponentInfo>();
 
@@ -138,16 +152,85 @@ namespace MTGInstaller {
 					component_list.Add(new InstallerFrontend.ComponentInfo(split[0], split[1]));
 				}
 
-				installer.Install(component_list, path);
-			} catch (InstallerFrontend.InstallationFailedException e) {
-				_WriteErrorLine(e.Message);
+				installer.Install(component_list, opts.Executable);
+				return 0;
+			} catch (Exception e) {
+				_WriteError(e);
 				return 1;
 			}
-			return 0;
+		}
+
+		private static bool? _StrBool(string v) {
+			if (v == null) return null;
+
+			var normalized = v.Trim().ToLowerInvariant();
+			if (normalized == "y" || normalized == "yes" || normalized == "true" || normalized == "t") return true;
+			else if (normalized == "n" || normalized == "no" || normalized == "false" || normalized == "f") return false;
+			else {
+				Logger.Error($"Unknown boolean value: {v}");
+				return null;
+			}
+		}
+
+		public static int SettingsMain(SettingsOptions opts) {
+			try {
+				var settings = Settings.Instance;
+
+				if (opts.ClearCustomComponentFiles) settings.CustomComponentFiles = new List<string>();
+				if (opts.ClearExecutablePath) settings.ExecutablePath = null;
+
+				if (opts.CustomComponentFiles != null) {
+					foreach (var com in opts.CustomComponentFiles) {
+						if (settings.CustomComponentFiles.Contains(com)) {
+							Logger.Warn($"The custom components file list already contains entry '{com}' - ignoring");
+						} else settings.CustomComponentFiles.Add(com);
+					}
+				}
+
+				var force_http = _StrBool(opts.ForceHTTP);
+				var force_backup = _StrBool(opts.ForceBackup);
+				var skip_version_checks = _StrBool(opts.SkipVersionChecks);
+				var leave_patch_dlls = _StrBool(opts.LeavePatchDLLs);
+
+				if (opts.ExecutablePath != null) {
+					if (Directory.Exists(opts.ExecutablePath)) {
+						var f = Path.Combine(opts.ExecutablePath, Autodetector.ExeName);
+						if (File.Exists(f)) opts.ExecutablePath = f;
+						else {
+							Logger.Error($"Provided executable path '{opts.ExecutablePath}' is actually a directory (and it doesn't contain {Autodetector.ExeName})");
+							return 1;
+						}
+					}
+
+					if (!File.Exists(opts.ExecutablePath)) {
+						Logger.Error($"File '{opts.ExecutablePath}' doesn't exist");
+						return 1;
+					}
+
+					if (Path.GetFileName(opts.ExecutablePath) != Autodetector.ExeName) {
+						Logger.Error($"File '{opts.ExecutablePath}' is either not a Gungeon executable or a Gungeon executable for a different OS and/or platform (expected {Autodetector.ExeName})");
+						return 1;
+					}
+
+					settings.ExecutablePath = opts.ExecutablePath;
+				}
+				if (force_http != null) settings.ForceHTTP = force_http.Value;
+				if (force_backup != null) settings.ForceBackup = force_backup.Value;
+				if (skip_version_checks != null) settings.SkipVersionChecks = skip_version_checks.Value;
+				if (leave_patch_dlls != null) settings.LeavePatchDLLs = leave_patch_dlls.Value;
+
+				settings.Save();
+
+				Console.WriteLine(Settings.Instance.UserFriendly);
+				return 0;
+			} catch (Exception e) {
+				_WriteError(e);
+				return 1;
+			}
 		}
 
 		public static int Main(string[] args) {
-			var result = Parser.Default.ParseArguments<DownloadOptions, AutodetectOptions, ComponentsOptions, ComponentOptions, InstallOptions, UninstallOptions>(args);
+			var result = Parser.Default.ParseArguments<DownloadOptions, AutodetectOptions, ComponentsOptions, ComponentOptions, InstallOptions, UninstallOptions, SettingsOptions>(args);
 			return result.MapResult(
 				(DownloadOptions opts) => DownloadMain(opts),
 				(AutodetectOptions opts) => AutodetectMain(opts),
@@ -155,6 +238,7 @@ namespace MTGInstaller {
 				(ComponentOptions opts) => ComponentMain(opts),
 				(InstallOptions opts) => InstallMain(opts),
 				(UninstallOptions opts) => UninstallMain(opts),
+				(SettingsOptions opts) => SettingsMain(opts),
 				errors => 1
 			);
 		}

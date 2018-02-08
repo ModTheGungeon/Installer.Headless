@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using YamlDotNet.Serialization;
 
 namespace MTGInstaller.YAML {
@@ -16,20 +17,20 @@ namespace MTGInstaller.YAML {
 		public string _VersionsURL { set; get; }
 
 		[YamlMember(Alias = "versions")]
-		public ETGModVersion[] _VersionsArray { set; get; }
+		public List<ETGModVersion> _VersionsArray { set; get; }
 
-		public ETGModVersion[] Versions {
+		public List<ETGModVersion> Versions {
 			get {
 				if (_VersionsArray != null) return _VersionsArray;
 				if (_VersionsURL == null) throw new Exception("Both versions_url and versions aren't set!");
 				var str = Downloader.WebClient.DownloadString(_VersionsURL);
-				return _VersionsArray = SerializationHelper.Deserializer.Deserialize<ETGModVersion[]>(str);
+				return _VersionsArray = SerializationHelper.Deserializer.Deserialize<List<ETGModVersion>>(str);
 			}
 		}
 
 		public override string ToString() {
 			//if (Beta) return $"[β {Key}] {DisplayName}";
-			return $"{Name} w/ {Versions.Length} version(s) (last update: {Versions[0].ReleaseDate ?? "N/A"})";
+			return $"{Name} w/ {Versions.Count} version(s) (last update: {Versions[0].ReleaseDate ?? "N/A"})";
 		}
 	}
 }

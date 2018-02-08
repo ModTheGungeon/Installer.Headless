@@ -28,8 +28,8 @@ namespace MTGInstaller.YAML {
 		public bool RequiresPatchedExe { set; get; } = false;
 
 		public override string ToString() {
-			if (Beta) return $"[{Key} β] {DisplayName} ({ReleaseDate})";
-			return $"[{Key} R] {DisplayName} ({ReleaseDate})";
+			if (Beta) return $"[{Key} β] {DisplayName} ({ReleaseDate ?? "N/A"})";
+			return $"[{Key} R] {DisplayName} ({ReleaseDate ?? "N/A"})";
 		}
 	}
 }

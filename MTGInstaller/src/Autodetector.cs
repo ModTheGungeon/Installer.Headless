@@ -12,6 +12,7 @@ namespace MTGInstaller {
 	}
 
 	public enum Architecture {
+		Unknown,
 		X86,
 		X86_64
 	}
@@ -27,9 +28,14 @@ namespace MTGInstaller {
 	public static class Autodetector {
 		private static Logger _Logger = new Logger(nameof(Autodetector));
 
+		private static Architecture _Architecture = Architecture.Unknown;
 		public static Architecture Architecture {
 			get {
-				return IntPtr.Size == 4 ? Architecture.X86 : Architecture.X86_64;
+				if (_Architecture != Architecture.Unknown) return _Architecture;
+				return _Architecture = IntPtr.Size == 4 ? Architecture.X86 : Architecture.X86_64;
+			}
+			set {
+				_Architecture = value;
 			}
 		}
 
@@ -58,6 +64,10 @@ namespace MTGInstaller {
 
 				return _Platform;
 			}
+
+			set {
+				_Platform = value;
+			}
 		}
 
 		public static bool Unix { get { return Platform == Platform.Linux || Platform == Platform.Mac; } }
@@ -70,6 +80,10 @@ namespace MTGInstaller {
 				if (SteamPath != null) _Distributor = Distributor.Steam;
 				if (GOGPath != null) _Distributor = Distributor.GOG;
 				return _Distributor = Distributor.Other;
+			}
+
+			set {
+				_Distributor = value;
 			}
 		}
 

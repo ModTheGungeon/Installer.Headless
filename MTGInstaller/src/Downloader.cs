@@ -53,19 +53,14 @@ namespace MTGInstaller {
 
 			Components = ParseComponentsFile(FetchComponents());
 
-			string local_component_yml_path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			local_component_yml_path = Path.Combine(local_component_yml_path, "Mod the Gungeon");
-			if (!Directory.Exists(local_component_yml_path)) Directory.CreateDirectory(local_component_yml_path);
-
-			local_component_yml_path = Path.Combine(local_component_yml_path, LOCAL_COMPONENT_FILE_NAME);
-			if (File.Exists(local_component_yml_path)) {
-				AddComponentsFile(File.ReadAllText(local_component_yml_path));
+			if (File.Exists(Settings.CustomComponentsFile)) {
+				AddComponentsFile(File.ReadAllText(Settings.CustomComponentsFile));
 			} else {
 				var asm = Assembly.GetExecutingAssembly();
 				var stream = asm.GetManifestResourceStream("res::custom-components-template");
 
 				using (var reader = new StreamReader(stream))
-				using (var writer = File.CreateText(local_component_yml_path)) {
+				using (var writer = File.CreateText(Settings.CustomComponentsFile)) {
 					writer.Write(reader.ReadToEnd());
 				}
 			}	       
@@ -75,7 +70,23 @@ namespace MTGInstaller {
 			var parsed = SerializationHelper.Deserializer.Deserialize<ETGModComponent[]>(components);
 			if (parsed == null) return;
 			foreach (var com in parsed) {
-				Components[com.Name] = com;
+				ETGModComponent existing_component;
+
+				if (Components.TryGetValue(com.Name, out existing_component)) {
+					// if component already exists, do an intelligent version merge
+					foreach (var ver in com.Versions) {
+						foreach (var exver in existing_component.Versions) {
+							if (exver.Key == ver.Key) {
+								existing_component.Versions.Remove(exver);
+								break;
+							}
+						}
+
+						existing_component.Versions.Add(ver);
+					}
+				} else {
+					Components[com.Name] = com;
+				}
 			}
 		}
 
