@@ -36,6 +36,9 @@
       <HintPath>..\libs\CommandLine\CommandLine.dll</HintPath>
     </Reference>
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\libs\MonoMod\packages\Mono.Cecil.0.10.0-beta5\lib\net35\Mono.Cecil.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />

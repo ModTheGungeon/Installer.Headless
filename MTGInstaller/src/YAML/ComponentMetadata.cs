@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using YamlDotNet.Serialization;
 
 namespace MTGInstaller.YAML {
@@ -12,5 +13,12 @@ namespace MTGInstaller.YAML {
 
 		[YamlMember(Alias = "name")]
 		public string Name { get; set; } = null;
+
+		[YamlMember(Alias = "ordered_targets")]
+		public List<string> OrderedTargets { get; set; } = null;
+
+		// target => {mmdll => dll}
+		[YamlMember(Alias = "relink_map")]
+		public Dictionary<string, Dictionary<string, string>> RelinkMap { get; set; } = null;
 	}
 }

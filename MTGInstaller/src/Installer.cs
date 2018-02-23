@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using MonoMod;
 using MTGInstaller.YAML;
+using Mono.Cecil;
 
 namespace MTGInstaller {
 	public class Installer {
@@ -370,7 +371,7 @@ namespace MTGInstaller {
 				_Install("file", OtherFiles, managed, subdir: true);
 				_Install("directory", Dirs, managed, subdir: true);
 
-				foreach (var patch_target in installer.Downloader.GungeonMetadata.ViablePatchTargets) {
+				foreach (var patch_target in Metadata?.OrderedTargets ?? installer.Downloader.GungeonMetadata.ViablePatchTargets) {
 					var patch_target_dll = Path.Combine(managed, $"{patch_target}.dll");
 					var patch_target_tmp = Path.Combine(managed, $"{patch_target}{TMP_PATCH_SUFFIX}");
 
@@ -378,6 +379,24 @@ namespace MTGInstaller {
 						InputPath = patch_target_dll,
 						OutputPath = patch_target_tmp
 					};
+
+					if (Metadata != null && Metadata.RelinkMap != null) {
+						Dictionary<string, string> rmap;
+						if (Metadata.RelinkMap.TryGetValue(patch_target, out rmap)) {
+							_Logger.Info($"Reading component relink map for target {patch_target}");
+							foreach (var pair in rmap) {
+								ModuleDefinition module;
+								if (!modder.DependencyCache.TryGetValue(pair.Value, out module)) {
+									var path = Path.Combine(managed, pair.Value);
+									_Logger.Debug($"Dependency not in cache: {pair.Value} ({path})");
+									module = modder.DependencyCache[pair.Value] = ModuleDefinition.ReadModule(path);
+								}
+
+								_Logger.Debug($"Mapping {pair.Key} => {pair.Value}");
+								modder.RelinkModuleMap[pair.Key] = module;
+							}
+						}
+					}
 
 					modder.Read();
 
@@ -398,7 +417,7 @@ namespace MTGInstaller {
 					}
 
 					_Logger.Info($"Patching target: {patch_target}");
-					
+										
 					modder.MapDependencies();
 					modder.AutoPatch();
 					modder.Write();

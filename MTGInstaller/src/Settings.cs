@@ -11,9 +11,13 @@ namespace MTGInstaller {
 		public const string CUSTOM_COMPONENTS_YML_NAME = "custom-components.yml";
 		public const string SETTINGS_YML_NAME = "settings.yml";
 
+		private static Logger _Logger = new Logger("Settings");
+
 		public static string SettingsDir {
 			get {
 				var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), DIR_NAME);
+
+				_Logger.Debug($"Settings path: {path}");
 
 				// I know it's bad to do this in the getter...
 				// but it seems like the cleanest option
