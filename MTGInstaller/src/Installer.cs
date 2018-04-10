@@ -19,6 +19,7 @@ namespace MTGInstaller {
 
 		const string BACKUP_DIR_NAME = ".ETGModBackup";
 		const string BACKUP_MANAGED_NAME = "Managed";
+		const string BACKUP_PLUGINS_NAME = "Plugins";
 		const string BACKUP_ROOT_NAME = "Root";
 		const string TMP_PATCHED_EXE_NAME = "EtG.patched";
 		const string BACKUP_VERSION_FILE_NAME = "backup_version.txt";
@@ -39,9 +40,11 @@ namespace MTGInstaller {
 		public string ExeFile { get { return Path.Combine(GameDir, Autodetector.ExeName); } }
 		public string PatchedExeFile { get { return Path.Combine(GameDir, TMP_PATCHED_EXE_NAME); } }
 		public string ManagedDir { get { return Path.Combine(GameDir, "EtG_Data", "Managed"); } }
+		public string PluginsDir { get { return Path.Combine(GameDir, "EtG_Data", "Plugins"); } }
 		public string BackupDir { get { return Path.Combine(GameDir, BACKUP_DIR_NAME); } }
 		public string BackupRootDir { get { return Path.Combine(BackupDir, BACKUP_ROOT_NAME); } }
 		public string BackupManagedDir { get { return Path.Combine(BackupDir, BACKUP_MANAGED_NAME); } }
+		public string BackupPluginsDir { get { return Path.Combine(BackupDir, BACKUP_PLUGINS_NAME); } }
 		public string BackupVersionFile { get { return Path.Combine(BackupDir, BACKUP_VERSION_FILE_NAME); } }
 
 		public void Restore(bool force = false) {
@@ -113,6 +116,24 @@ namespace MTGInstaller {
 					File.Copy(ent, Path.Combine(ManagedDir, file), overwrite: true);
 				}
 			}
+
+			if (!Directory.Exists(BackupPluginsDir)) _Logger.Warn("Plugins directory backup is missing - did an error occur while creating the backup? The game files might be corrupted.");
+			else {
+				_Logger.Debug($"WIPING Plugins directory");
+				Directory.Delete(PluginsDir, recursive: true);
+
+				Directory.CreateDirectory(PluginsDir);
+
+				var plugins_entries = Directory.GetFileSystemEntries(BackupPluginsDir);
+
+				foreach (var ent in plugins_entries) {
+					var file = Path.GetFileName(ent);
+
+					_Logger.Debug($"Restoring plugins file/directory: {file}");
+
+					Utils.CopyRecursive(ent, Path.Combine(PluginsDir, file));
+				}
+			}
 		}
 
 		public void Backup(bool force = false) {
@@ -122,6 +143,7 @@ namespace MTGInstaller {
 				} else {
 					if (!Directory.Exists(BackupRootDir)) _Logger.Warn("Backup directory exists, but the root backup subdirectory is missing - did an error occure while creating the backup? The game files might be corrupted.");
 					if (!Directory.Exists(BackupManagedDir)) _Logger.Warn("Backup directory exists, but the managed backup subdirectory is missing - did an error occure while creating the backup? The game files might be corrupted.");
+					if (!Directory.Exists(BackupPluginsDir)) _Logger.Warn("Backup directory exists, but the plugins backup subdirectory is missing - did an error occure while creating the backup? The game files might be corrupted.");
 
 					_Logger.Info($"Backup folder exists - not backing up");
 					return;
@@ -133,6 +155,7 @@ namespace MTGInstaller {
 			Directory.CreateDirectory(BackupDir);
 			Directory.CreateDirectory(BackupRootDir);
 			Directory.CreateDirectory(BackupManagedDir);
+			Directory.CreateDirectory(BackupPluginsDir);
 
 			var root_entries = Directory.GetFileSystemEntries(GameDir);
 			foreach (var ent in root_entries) {
@@ -152,6 +175,15 @@ namespace MTGInstaller {
 
 					File.Copy(ent, Path.Combine(BackupManagedDir, file), overwrite: true);
 				}
+			}
+
+			var plugins_entries = Directory.GetFileSystemEntries(PluginsDir);
+			foreach (var ent in plugins_entries) {
+				var file = Path.GetFileName(ent);
+				// TODO filter?
+				_Logger.Debug($"Backing up plugins file: {file}");
+
+				Utils.CopyRecursive(ent, Path.Combine(BackupPluginsDir, file));
 			}
 
 			_Logger.Debug($"Backed up for Gungeon {Autodetector.Version}");
@@ -213,6 +245,7 @@ namespace MTGInstaller {
 			const string EXE_SUFFIX = ".exe";
 			const string TXT_SUFFIX = ".txt";
 			const string METADATA = "metadata.yml";
+			const string PLUGINS = "Plugins";
 			const string TMP_PATCH_SUFFIX = ".patched";
 
 			public List<string> Assemblies = new List<string>();
@@ -227,6 +260,7 @@ namespace MTGInstaller {
 			public string ExtractedPath;
 			public string SupportedGungeon;
 			public bool RequiresPatchedExe;
+			public bool HasPluginsDir = false;
 
 			public IList<string> InstallInSubdir { get { return Metadata?.InstallInSubdir; } }
 			public IList<string> InstallInManaged { get { return Metadata?.InstallInManaged; } }
@@ -268,6 +302,8 @@ namespace MTGInstaller {
 					} else if (ent.EndsWith($"{Path.DirectorySeparatorChar}{METADATA}", StringComparison.InvariantCulture)) {
 						var mt = File.ReadAllText(ent);
 						Metadata = SerializationHelper.Deserializer.Deserialize<ComponentMetadata>(mt);
+					} else if (filename == PLUGINS) {
+						HasPluginsDir = true;
 					} else {
 						var attr = File.GetAttributes(ent);
 						if (attr.HasFlag(FileAttributes.Directory)) {
@@ -316,36 +352,6 @@ namespace MTGInstaller {
 				return Path.Combine(ExtractedPath, rel_path);
 			}
 
-			private static void _Copy(string source, string destination) {
-				// https://docs.microsoft.com/en-us/dotnet/standard/io/how-to-copy-directories
-				var attr = File.GetAttributes(source);
-				if (attr.HasFlag(FileAttributes.Directory)) {
-					var dir = new DirectoryInfo(source);
-
-					if (!dir.Exists) {
-						throw new DirectoryNotFoundException($"Source directory does not exist or could not be found: {source}");
-					}
-
-					var dirs = dir.GetDirectories();
-					if (!Directory.Exists(destination)) Directory.CreateDirectory(destination);
-
-					var files = dir.GetFiles();
-					foreach (var file in files) {
-						var path = Path.Combine(destination, file.Name);
-						file.CopyTo(path, overwrite: true);
-					}
-
-					foreach (var subdir in dirs) {
-						var path = Path.Combine(destination, subdir.Name);
-						_Copy(subdir.FullName, path);
-					}
-				} else {
-					File.Copy(source, destination, overwrite: true);
-				}
-
-
-			}
-
 			private void _Install(string name, IList<string> entries, string managed, bool subdir = false) {
 				foreach (var ent in entries) {
 					_Logger.Info($"Installing {name}: {ent}");
@@ -356,13 +362,21 @@ namespace MTGInstaller {
 					if (target == TargetDirectory.Subdir) local_target = Path.Combine(managed, Name);
 					if (!Directory.Exists(local_target)) Directory.CreateDirectory(local_target);
 
-					_Copy(AbsPath(ent), Path.Combine(local_target, ent));
+					Utils.CopyRecursive(AbsPath(ent), Path.Combine(local_target, ent));
 				}
+			}
+
+			private void _InstallPlugins(string target_dir) {
+				var source_dir = Path.Combine(ExtractedPath, PLUGINS);
+
+				var plugin_handler = PlatformPlugin.Create(Autodetector.Platform);
+				plugin_handler.Copy(source_dir, target_dir);
 			}
 
 			public void Install(Installer installer, bool leave_mmdlls = false) {
 				var managed = installer.ManagedDir;
 
+				if (HasPluginsDir) _InstallPlugins(installer.PluginsDir);
 				if (RequiresPatchedExe) installer.PatchExe();
 
 				_Install("assembly", Assemblies, managed);

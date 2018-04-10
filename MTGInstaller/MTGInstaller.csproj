@@ -58,6 +58,8 @@
     <Compile Include="src\ETGModVersion.cs" />
     <Compile Include="src\GungeonMetadata.cs" />
     <Compile Include="src\SerializationHelper.cs" />
+    <Compile Include="src\PlatformPlugin.cs" />
+    <Compile Include="src\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />
