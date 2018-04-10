@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using CommandLine;
 using MTGInstaller.Options;
-using MTGInstaller.YAML;
 
 namespace MTGInstaller {
 	public static class Program {

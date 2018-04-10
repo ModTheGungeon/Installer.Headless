@@ -5,7 +5,6 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using MonoMod;
-using MTGInstaller.YAML;
 using Mono.Cecil;
 
 namespace MTGInstaller {

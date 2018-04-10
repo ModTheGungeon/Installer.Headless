@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using YamlDotNet.Serialization;
 
-namespace MTGInstaller.YAML {
+namespace MTGInstaller {
 	public class ETGModComponent {
 		[YamlMember(Alias = "name")]
 		public string Name { set; get; }

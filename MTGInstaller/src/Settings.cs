@@ -55,7 +55,7 @@ namespace MTGInstaller {
 					}
 				}
 
-				return _Instance = YAML.SerializationHelper.Deserializer.Deserialize<Settings>(File.ReadAllText(SettingsFile));
+				return _Instance = SerializationHelper.Deserializer.Deserialize<Settings>(File.ReadAllText(SettingsFile));
 			}
 		}
 
@@ -96,7 +96,7 @@ namespace MTGInstaller {
 
 		public void Save() {
 			using (var writer = File.CreateText(SettingsFile)) {
-				var ser = YAML.SerializationHelper.Serializer.Serialize(this);
+				var ser = SerializationHelper.Serializer.Serialize(this);
 				writer.Write(ser);
 			}
 		}

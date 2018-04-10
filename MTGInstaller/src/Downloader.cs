@@ -2,7 +2,6 @@
 using System.IO;
 using System.Net;
 using System.IO.Compression;
-using MTGInstaller.YAML;
 using System.Collections.Generic;
 using System.Reflection;
 

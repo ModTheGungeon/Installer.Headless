@@ -1,7 +1,7 @@
 ﻿using System;
 using YamlDotNet.Serialization;
 
-namespace MTGInstaller.YAML {
+namespace MTGInstaller {
 	public class ETGModVersion {
 		[YamlMember(Alias = "key")]
 		public string Key { set; get; }

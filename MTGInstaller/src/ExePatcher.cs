@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Threading;
 using System.Linq;
-using MTGInstaller.YAML;
 using System.Text;
 
 namespace MTGInstaller {

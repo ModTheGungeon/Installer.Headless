@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using YamlDotNet.Serialization;
 
-namespace MTGInstaller.YAML {
+namespace MTGInstaller {
 	public class ComponentMetadata {
 		[YamlMember(Alias = "install_in_subdir")]
 		public string[] InstallInSubdir { get; set; }

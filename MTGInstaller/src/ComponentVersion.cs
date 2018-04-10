@@ -1,5 +1,4 @@
 ﻿using System;
-using MTGInstaller.YAML;
 
 namespace MTGInstaller {
 	public struct ComponentVersion {
