@@ -7,6 +7,9 @@ using System.Linq;
 namespace MTGInstaller.Options {
 	[Verb("download", HelpText = "Download and extract an ETGMod version by key.")]
 	public class DownloadOptions {
+		[Option('o', "offline", HelpText = "Offline mode. Only local components will be indexed.")]
+		public bool Offline { get; set; }
+
 		[Value(0, MetaName = "component", HelpText = "The component", Required = true)]
 		public string Component { get; set; }
 
@@ -28,6 +31,9 @@ namespace MTGInstaller.Options {
 
 	[Verb("components", HelpText = "List the available components.")]
 	public class ComponentsOptions {
+		[Option('o', "offline", HelpText = "Offline mode. Only local components will be indexed.")]
+		public bool Offline { get; set; }
+
 		[Option('h', "force-http", HelpText = "Force use of insecure HTTP instead of HTTPS")]
 		public bool HTTP { get; set; }
 
@@ -37,6 +43,9 @@ namespace MTGInstaller.Options {
 
 	[Verb("component", HelpText = "Show detailed information about a certain component.")]
 	public class ComponentOptions {
+		[Option('o', "offline", HelpText = "Offline mode. Only local components will be indexed.")]
+		public bool Offline { get; set; }
+
 		[Option('h', "http", HelpText = "Force use of insecure HTTP instead of HTTPS")]
 		public bool HTTP { get; set; }
 
@@ -49,6 +58,9 @@ namespace MTGInstaller.Options {
 
 	[Verb("install", HelpText = "Install components.")]
 	public class InstallOptions {
+		[Option('o', "offline", HelpText = "Offline mode. Only local components will be indexed.")]
+		public bool Offline { get; set;  }
+
 		[Value(0, MetaName = "components", HelpText = "Semicolon separated list of components and versions (e.g. 'ETGMod@0.3;Example@1.0')", Required = true)]
 		public string Components { get; set; }
 

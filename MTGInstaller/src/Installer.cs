@@ -22,6 +22,7 @@ namespace MTGInstaller {
 		const string BACKUP_PLUGINS_NAME = "Plugins";
 		const string BACKUP_ROOT_NAME = "Root";
 		const string TMP_PATCHED_EXE_NAME = "EtG.patched";
+		const string TMP_PATCHED_UNITYPLAYER_DLL_NAME = "UnityPlayer.patched";
 		const string BACKUP_VERSION_FILE_NAME = "backup_version.txt";
 
 		public bool ExePatched = false;
@@ -39,6 +40,8 @@ namespace MTGInstaller {
 
 		public string ExeFile { get { return Path.Combine(GameDir, Autodetector.ExeName); } }
 		public string PatchedExeFile { get { return Path.Combine(GameDir, TMP_PATCHED_EXE_NAME); } }
+		public string WindowsUnityPlayerDLL { get { return Path.Combine(GameDir, "UnityPlayer.dll"); } }
+		public string PatchedWindowsUnityPlayerDLL { get { return Path.Combine(GameDir, TMP_PATCHED_UNITYPLAYER_DLL_NAME); } }
 		public string ManagedDir { get { return Path.Combine(GameDir, "EtG_Data", "Managed"); } }
 		public string PluginsDir { get { return Path.Combine(GameDir, "EtG_Data", "Plugins"); } }
 		public string BackupDir { get { return Path.Combine(GameDir, BACKUP_DIR_NAME); } }
@@ -194,6 +197,14 @@ namespace MTGInstaller {
 			if (ExePatched) return;
 			ExePatched = true;
 
+			var patch_file = ExeFile;
+			var target_file = PatchedExeFile;
+			if (Autodetector.Platform == Platform.Windows) {
+				// why in holy hell does this exist? what's the point?
+				patch_file = WindowsUnityPlayerDLL;
+				target_file = PatchedWindowsUnityPlayerDLL;
+			}
+
 			if (Downloader.GungeonMetadata.ExeOrigSubsitutions == null) return;
 			_Logger.Info("Patching executable to substitute symbols");
 
@@ -202,7 +213,7 @@ namespace MTGInstaller {
 				Process p = Process.Start(new ProcessStartInfo {
 					FileName = "/usr/bin/stat",
 					UseShellExecute = false,
-					Arguments = $"-c '%a' '{ExeFile}'",
+					Arguments = $"-c '%a' '{patch_file}'",
 					RedirectStandardOutput = true
 				});
 				perm_octal = p.StandardOutput.ReadToEnd().Trim();
@@ -212,14 +223,14 @@ namespace MTGInstaller {
 				_Logger.Debug($"Permissions on executable: {perm_octal}");
 			}
 
-			using (var reader = new BinaryReader(File.OpenRead(ExeFile)))
-			using (var writer = new BinaryWriter(File.OpenWrite(PatchedExeFile))) {
+			using (var reader = new BinaryReader(File.OpenRead(patch_file)))
+			using (var writer = new BinaryWriter(File.OpenWrite(target_file))) {
 				ExePatcher.Patch(reader, writer, Downloader.GungeonMetadata.ExeOrigSubsitutions);
 			}
 
 			_Logger.Debug($"Replacing executable");
-			if (File.Exists(ExeFile)) File.Delete(ExeFile);
-			File.Move(PatchedExeFile, ExeFile);
+			if (File.Exists(patch_file)) File.Delete(patch_file);
+			File.Move(target_file, patch_file);
 
 			if (Autodetector.Unix) {
 				_Logger.Info($"Restoring executable permissions");
@@ -227,7 +238,7 @@ namespace MTGInstaller {
 				Process p = Process.Start(new ProcessStartInfo {
 					FileName = "/usr/bin/chmod",
 					UseShellExecute = false,
-					Arguments = $"'{perm_octal}' '{ExeFile}'"
+					Arguments = $"'{perm_octal}' '{patch_file}'"
 				});
 				p.WaitForExit();
 				p.Close();

@@ -43,14 +43,15 @@ namespace MTGInstaller {
 			}
 		}
 
-		public Downloader(bool force_http = false) {
+		public Downloader(bool force_http = false, bool offline = false) {
 			if (force_http) BaseURL = $"http://{BaseDomain}";
 			else BaseURL = $"https://{BaseDomain}";
 
 			ComponentsURL = $"{BaseURL}/components.yml";
 			GungeonMetadataURL = $"{BaseURL}/gungeon.yml";
 
-			Components = ParseComponentsFile(FetchComponents());
+			if (offline) Components = new Dictionary<string, ETGModComponent>();
+			else Components = ParseComponentsFile(FetchComponents());
 
 			if (File.Exists(Settings.CustomComponentsFile)) {
 				AddComponentsFile(File.ReadAllText(Settings.CustomComponentsFile));

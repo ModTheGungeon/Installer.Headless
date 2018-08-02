@@ -10,7 +10,8 @@ namespace MTGInstaller {
 			SkipVersionChecks = 1,
 			ForceBackup = 2,
 			HTTP = 4,
-			LeavePatchDLLs = 8
+			LeavePatchDLLs = 8,
+			Offline = 16
 		}
 
 		private static Logger _Logger = new Logger("InstallerFrontend");
@@ -33,9 +34,10 @@ namespace MTGInstaller {
 			if (settings.ForceHTTP) Options |= InstallerOptions.HTTP;
 			if (settings.LeavePatchDLLs) Options |= InstallerOptions.LeavePatchDLLs;
 			if (settings.ForceBackup) Options |= InstallerOptions.ForceBackup;
+			if (settings.Offline) Options |= InstallerOptions.Offline;
 			Options |= options;
 
-			_Downloader = new Downloader(force_http: Options.HasFlag(InstallerOptions.HTTP));
+			_Downloader = new Downloader(force_http: Options.HasFlag(InstallerOptions.HTTP), offline: Options.HasFlag(InstallerOptions.Offline));
 			_Installer = new Installer(_Downloader, exe_path: null);
 
 			foreach (var ent in settings.CustomComponentFiles) {

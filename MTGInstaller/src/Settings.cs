@@ -73,6 +73,8 @@ namespace MTGInstaller {
 		public List<string> CustomComponentFiles { get; set; } = new List<string>();
 		[YamlMember(Alias = "leave_patch_dlls")]
 		public bool LeavePatchDLLs { get; set; } = false;
+		[YamlMember(Alias = "offline")]
+		public bool Offline { get; set; } = false;
 
 		[YamlIgnore]
 		public string UserFriendly {
@@ -83,6 +85,7 @@ namespace MTGInstaller {
 				builder.Append("Force insecure HTTP: ").AppendLine(ForceHTTP ? "Yes" : "No");
 				builder.Append("Force a backup of the current state: ").AppendLine(ForceBackup ? "Yes" : "No");
 				builder.Append("Skip version checks: ").AppendLine(SkipVersionChecks ? "Yes" : "No");
+				builder.Append("Offline mode: ").AppendLine(Offline ? "Yes" : "No");
 				if (CustomComponentFiles.Count > 0) {
 					builder.AppendLine("Custom component files: ");
 					foreach (var comp in CustomComponentFiles) {

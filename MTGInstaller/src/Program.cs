@@ -19,7 +19,7 @@ namespace MTGInstaller {
 
 		public static int DownloadMain(DownloadOptions opts) {
 			try {
-				var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
+				var installer = new InstallerFrontend(opts.Offline ? InstallerFrontend.InstallerOptions.Offline : InstallerFrontend.InstallerOptions.None);
 			
 				installer.Download(new ComponentInfo(opts.Component, opts.Version), opts.Force).Dispose();
 				return 0;
@@ -47,7 +47,7 @@ namespace MTGInstaller {
 
 		public static int ComponentsMain(ComponentsOptions opts) {
 			try {
-				var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
+				var installer = new InstallerFrontend(opts.Offline ? InstallerFrontend.InstallerOptions.Offline : InstallerFrontend.InstallerOptions.None);
 
 				foreach (var component_file in opts.CustomComponentFiles) {
 					Logger.Debug($"Adding custom component file: {component_file}");
@@ -67,7 +67,7 @@ namespace MTGInstaller {
 
 		public static int ComponentMain(ComponentOptions opts) {
 			try {
-				var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
+				var installer = new InstallerFrontend(opts.Offline ? InstallerFrontend.InstallerOptions.Offline : InstallerFrontend.InstallerOptions.None);
 
 				foreach (var component_file in opts.CustomComponentFiles) {
 					Logger.Debug($"Adding custom component file: {component_file}");
@@ -126,7 +126,7 @@ namespace MTGInstaller {
 					Autodetector.Architecture = (Architecture)Enum.Parse(typeof(Architecture), opts.Architecture);
 				}
 
-				var installer = new InstallerFrontend(InstallerFrontend.InstallerOptions.None);
+				var installer = new InstallerFrontend(opts.Offline ? InstallerFrontend.InstallerOptions.Offline : InstallerFrontend.InstallerOptions.None);
 				if (opts.HTTP) installer.Options |= InstallerFrontend.InstallerOptions.HTTP;
 				if (opts.ForceBackup) installer.Options |= InstallerFrontend.InstallerOptions.ForceBackup;
 				if (opts.LeavePatchDLLs) installer.Options |= InstallerFrontend.InstallerOptions.LeavePatchDLLs;
