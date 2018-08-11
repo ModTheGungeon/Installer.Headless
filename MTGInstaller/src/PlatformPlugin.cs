@@ -163,8 +163,8 @@ namespace MTGInstaller {
 
 		internal WindowsPlatformPlugin() : base(Platform.Windows, separate_arch: false) { }
 
-		private string DetermineArch(string target_plugin_dir) {
-			var test_dll_path = Path.Combine(target_plugin_dir, TEST_DLL);
+		private string DetermineArch(string game_dir) {
+			var test_dll_path = Path.Combine(game_dir, "Plugins", TEST_DLL);
 			if (!File.Exists(test_dll_path)) throw new Exception($"Missing DLL (used to guess the architecture): {test_dll_path}");
 
 			using (var r = new BinaryReader(File.OpenRead(test_dll_path))) {
@@ -189,7 +189,7 @@ namespace MTGInstaller {
 		
 		protected override void CopyImpl(string source_root_plugin_dir, string target_plugin_dir) {
 			Logger.Info("Determining architecture");
-			var arch = DetermineArch(target_plugin_dir);
+			var arch = DetermineArch(Directory.GetParent(Autodetector.ExePath).FullName);
 
 			Logger.Info($"Architecture is: {arch} bit");
 
