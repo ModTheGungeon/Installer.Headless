@@ -377,17 +377,8 @@ namespace MTGInstaller {
 				}
 			}
 
-			private string _PlatformToPluginDir(Platform plat) {
-				switch(plat) {
-				case Platform.Linux: return "Linux";
-				case Platform.Windows: return "Windows";
-				case Platform.Mac: return "MacOS";
-				default: throw new NotImplementedException($"Unsupported platform: ${plat}");
-				}
-			}
-
 			private void _InstallPlugins(string target_dir) {
-				var source_dir = Path.Combine(ExtractedPath, PLUGINS, _PlatformToPluginDir(Autodetector.Platform));
+				var source_dir = Path.Combine(ExtractedPath, PLUGINS);
 
 				var plugin_handler = PlatformPlugin.Create(Autodetector.Platform);
 				plugin_handler.Copy(source_dir, target_dir);

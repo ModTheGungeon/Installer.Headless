@@ -102,6 +102,15 @@ namespace MTGInstaller {
 
 		protected static string PlatformID(Platform plat) { return PlatformIdentifiers[plat]; }
 
+		private string _PlatformToPluginDir(Platform plat) {
+			switch (plat) {
+			case Platform.Linux: return "Linux";
+			case Platform.Windows: return "Windows";
+			case Platform.Mac: return "MacOS";
+			default: throw new NotImplementedException($"Unsupported platform: ${plat}");
+			}
+		}
+
 		protected abstract void CopyImpl(string source_root_plugin_dir, string target_plugin_dir);
 		public void Copy(string source_root_plugin_dir, string target_plugin_dir) {
 			Logger.Debug($"Copying platform plugins from {source_root_plugin_dir} to {target_plugin_dir}");
@@ -110,7 +119,7 @@ namespace MTGInstaller {
 			_EnforcePluginHierarchy(source_root_plugin_dir, Platform.Windows, "32", "64");
 			_EnforcePluginHierarchy(source_root_plugin_dir, Platform.Mac);
 
-			CopyImpl(source_root_plugin_dir, target_plugin_dir);
+			CopyImpl(Path.Combine(source_root_plugin_dir, _PlatformToPluginDir(Autodetector.Platform)), target_plugin_dir);
 		}
 
 		private static void _EnforcePluginHierarchy(string plugin_dir, Platform plat, params string[] subdirs) {
