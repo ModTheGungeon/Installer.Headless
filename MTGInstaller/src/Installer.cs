@@ -20,7 +20,6 @@ namespace MTGInstaller {
 		const string BACKUP_DIR_NAME = ".ETGModBackup";
 		const string BACKUP_MANAGED_NAME = "Managed";
 		const string BACKUP_PLUGINS_NAME = "Plugins";
-		const string BACKUP_MONO_NAME = "Mono";
 		const string BACKUP_ROOT_NAME = "Root";
 		const string TMP_PATCHED_EXE_NAME = "EtG.patched";
 		const string TMP_PATCHED_UNITYPLAYER_DLL_NAME = "UnityPlayer.patched";
@@ -44,14 +43,7 @@ namespace MTGInstaller {
 		public string WindowsUnityPlayerDLL { get { return Path.Combine(GameDir, "UnityPlayer.dll"); } }
 		public string PatchedWindowsUnityPlayerDLL { get { return Path.Combine(GameDir, TMP_PATCHED_UNITYPLAYER_DLL_NAME); } }
 		public string ManagedDir { get { return Path.Combine(GameDir, "EtG_Data", "Managed"); } }
-		public string PluginsDir {
-			get {
-				if (Autodetector.Platform == Platform.Windows) {
-					return Path.Combine(GameDir, "EtG_Data", "Mono"); // why???
-				}
-				return Path.Combine(GameDir, "EtG_Data", "Plugins");
-			}
-		}
+		public string PluginsDir { get { return Path.Combine(GameDir, "EtG_Data", "Plugins"); } }
 		public string BackupDir { get { return Path.Combine(GameDir, BACKUP_DIR_NAME); } }
 		public string BackupRootDir { get { return Path.Combine(BackupDir, BACKUP_ROOT_NAME); } }
 		public string BackupManagedDir { get { return Path.Combine(BackupDir, BACKUP_MANAGED_NAME); } }
