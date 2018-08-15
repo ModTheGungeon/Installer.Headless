@@ -71,6 +71,13 @@ namespace MTGInstaller {
 			}
 		}
 
+		protected string GetSourcePath(string base_dir) {
+			if (_PathSuffix32Bit != _PathSuffix64Bit) {
+				throw new InvalidOperationException("can't run GetSourcePath on platform with arch separation");
+			}
+			return Path.Combine(base_dir, _PathSuffix64Bit);
+		}
+
 		protected string Get64BitSourcePath(string base_dir) {
 			return Path.Combine(base_dir, _PathSuffix64Bit);
 		}
@@ -113,13 +120,14 @@ namespace MTGInstaller {
 
 		protected abstract void CopyImpl(string source_root_plugin_dir, string target_plugin_dir);
 		public void Copy(string source_root_plugin_dir, string target_plugin_dir) {
+			Console.WriteLine($"source dir: {source_root_plugin_dir}");
 			Logger.Debug($"Copying platform plugins from {source_root_plugin_dir} to {target_plugin_dir}");
 			// Enforce the requirement for all platforms and architectures to be included
 			_EnforcePluginHierarchy(source_root_plugin_dir, Platform.Linux, "32", "64");
 			_EnforcePluginHierarchy(source_root_plugin_dir, Platform.Windows, "32", "64");
 			_EnforcePluginHierarchy(source_root_plugin_dir, Platform.Mac);
 
-			CopyImpl(Path.Combine(source_root_plugin_dir, _PlatformToPluginDir(Autodetector.Platform)), target_plugin_dir);
+			CopyImpl(source_root_plugin_dir, target_plugin_dir);
 		}
 
 		private static void _EnforcePluginHierarchy(string plugin_dir, Platform plat, params string[] subdirs) {
@@ -151,7 +159,7 @@ namespace MTGInstaller {
 		internal LinuxPlatformPlugin() : base(Platform.Linux) {}
 
 		protected override void CopyImpl(string source_root_plugin_dir, string target_plugin_dir) {
-			Logger.Info("Copying 32 bit plugins");
+			Logger.Info($"Copying 32 bit plugins {source_root_plugin_dir} {Get32BitSourcePath(source_root_plugin_dir)}");
 			CopyPlugins(Get32BitSourcePath(source_root_plugin_dir), Get32BitTargetPath(target_plugin_dir), extension: ".so");
 			Logger.Info("Copying 64 bit plugins");
 			CopyPlugins(Get64BitSourcePath(source_root_plugin_dir), Get64BitTargetPath(target_plugin_dir), extension: ".so");
@@ -163,7 +171,7 @@ namespace MTGInstaller {
 
 		protected override void CopyImpl(string source_root_plugin_dir, string target_plugin_dir) {
 			Logger.Info("Copying plugins");
-			CopyPlugins(source_root_plugin_dir, target_plugin_dir, extension: ".bundle");
+			CopyPlugins(GetSourcePath(source_root_plugin_dir), target_plugin_dir, extension: ".bundle");
 		}
 	}
 
@@ -204,7 +212,7 @@ namespace MTGInstaller {
 
 			Logger.Info("Copying plugins");
 
-			CopyPlugins(Path.Combine(source_root_plugin_dir, arch), target_plugin_dir, extension: ".dll");
+			CopyPlugins(Path.Combine(GetSourcePath(source_root_plugin_dir), arch), target_plugin_dir, extension: ".dll");
 		}
 	}
 }
