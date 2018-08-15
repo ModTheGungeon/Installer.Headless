@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright("(c) 2018 by Zatherz")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyInformationalVersion("10.04.2018")]
+[assembly: AssemblyInformationalVersion("beta1")]
 
 // The following attributes are used to specify the signing key for the assembly, 
 // if desired. See the Mono documentation for more information about signing.
