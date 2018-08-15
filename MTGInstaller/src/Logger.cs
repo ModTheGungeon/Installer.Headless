@@ -13,7 +13,7 @@ namespace MTGInstaller {
 #if DEBUG
 			LogLevel.Debug;
 #else
-            LogLevel.Warn;
+            LogLevel.Info;
 #endif
 
 		public string ID;

@@ -120,7 +120,6 @@ namespace MTGInstaller {
 
 		protected abstract void CopyImpl(string source_root_plugin_dir, string target_plugin_dir);
 		public void Copy(string source_root_plugin_dir, string target_plugin_dir) {
-			Console.WriteLine($"source dir: {source_root_plugin_dir}");
 			Logger.Debug($"Copying platform plugins from {source_root_plugin_dir} to {target_plugin_dir}");
 			// Enforce the requirement for all platforms and architectures to be included
 			_EnforcePluginHierarchy(source_root_plugin_dir, Platform.Linux, "32", "64");
