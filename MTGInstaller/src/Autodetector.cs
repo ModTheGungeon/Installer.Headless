@@ -251,6 +251,9 @@ namespace MTGInstaller {
 
 			var game_dir = Path.GetDirectoryName(exe_path);
 			var streaming_assets = Path.Combine(game_dir, "EtG_Data", "StreamingAssets");
+			if (Platform == Platform.Mac) {
+				streaming_assets = Path.Combine(game_dir, "Contents", "Resources", "Data", "StreamingAssets");
+			}
 
 			var txt = File.ReadAllLines(Path.Combine(streaming_assets, "version.txt"));
 			if (txt.Length < 1 || txt.Length > 2) {
