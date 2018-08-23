@@ -210,13 +210,13 @@ namespace MTGInstaller {
 
 			string perm_octal = null; // unix only
 			if (Autodetector.Unix) {
-				var stat_arg = "-c";
-				if (Autodetector.Platform == Platform.Mac) stat_arg = "-f";
+				var stat_arg = "-c '%a'";
+				if (Autodetector.Platform == Platform.Mac) stat_arg = "-f '%p'";
 
 				Process p = Process.Start(new ProcessStartInfo {
 					FileName = "/usr/bin/stat",
 					UseShellExecute = false,
-					Arguments = $"{stat_arg} '%a' '{patch_file}'",
+					Arguments = $"{stat_arg} '{patch_file}'",
 					RedirectStandardOutput = true
 				});
 				perm_octal = p.StandardOutput.ReadToEnd().Trim();
