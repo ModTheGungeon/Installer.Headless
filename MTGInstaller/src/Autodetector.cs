@@ -94,7 +94,7 @@ namespace MTGInstaller {
 					return "EtG.x86_64";
 				}
 				if (Platform == Platform.Windows) return "EtG.exe";
-				if (Platform == Platform.Mac) return "ETG_OSX";
+				if (Platform == Platform.Mac) return "EtG_OSX";
 				return null;
 			}
 		}
@@ -106,7 +106,7 @@ namespace MTGInstaller {
 					return "EtG.x86_64";
 				}
 				if (Platform == Platform.Windows) return "EtG";
-				if (Platform == Platform.Mac) return "ETG_OSX";
+				if (Platform == Platform.Mac) return "EtG_OSX";
 				return null; 
 			}
 		}
