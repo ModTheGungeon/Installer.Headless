@@ -30,7 +30,7 @@ namespace MTGInstaller {
 
 		public Dictionary<string, ETGModComponent> Components;
 
-		public string BaseDomain = "modthegungeon.zatherz.eu";
+		public string BaseDomain = "modthegungeon.eu/reloaded";
 		public string BaseURL;
 		public string ComponentsURL;
 		public string GungeonMetadataURL;
@@ -108,6 +108,7 @@ namespace MTGInstaller {
 		}
 
 		public string FetchComponents() {
+			_Logger.Debug($"components.yml URL: '{ComponentsURL}'");
 			return WebClient.DownloadString(ComponentsURL);
 		}
 
