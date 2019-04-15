@@ -36,8 +36,14 @@
       <HintPath>..\libs\CommandLine\CommandLine.dll</HintPath>
     </Reference>
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="MonoMod.BaseLoader">
+      <HintPath>..\libs\MonoMod\MonoMod.BaseLoader.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod">
+      <HintPath>..\libs\MonoMod\MonoMod.exe</HintPath>
+    </Reference>
     <Reference Include="Mono.Cecil">
-      <HintPath>..\libs\MonoMod\packages\Mono.Cecil.0.10.0-beta5\lib\net35\Mono.Cecil.dll</HintPath>
+      <HintPath>..\libs\MonoMod\Mono.Cecil.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -83,10 +89,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\libs\MonoMod\MonoMod.csproj">
-      <Project>{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}</Project>
-      <Name>MonoMod</Name>
-    </ProjectReference>
     <ProjectReference Include="..\libs\YamlDotNet\YamlDotNet\YamlDotNet.csproj">
       <Project>{BF32DE1B-6276-4341-B212-F8862ADBBA7A}</Project>
       <Name>YamlDotNet</Name>

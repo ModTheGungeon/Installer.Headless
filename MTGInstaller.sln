@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTGInstaller", "MTGInstaller\MTGInstaller.csproj", "{14668D9A-D210-4255-B921-FB2665223CE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoMod", "libs\MonoMod\MonoMod.csproj", "{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YamlDotNet", "libs\YamlDotNet\YamlDotNet\YamlDotNet.csproj", "{BF32DE1B-6276-4341-B212-F8862ADBBA7A}"
 EndProject
 Global
@@ -38,24 +36,6 @@ Global
 		{14668D9A-D210-4255-B921-FB2665223CE1}.Release-UnitySubset-v35|Any CPU.Build.0 = Debug|x86
 		{14668D9A-D210-4255-B921-FB2665223CE1}.Debug-UnitySubset-v35|Any CPU.ActiveCfg = Debug|x86
 		{14668D9A-D210-4255-B921-FB2665223CE1}.Debug-UnitySubset-v35|Any CPU.Build.0 = Debug|x86
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Debug|x86.Build.0 = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Release|x86.ActiveCfg = Release|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Release|x86.Build.0 = Release|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Debug-AOT|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Debug-AOT|Any CPU.Build.0 = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Release-Unsigned|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Release-Unsigned|Any CPU.Build.0 = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Release-Signed|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Release-Signed|Any CPU.Build.0 = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Release-Portable-Unsigned|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Release-Portable-Unsigned|Any CPU.Build.0 = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Release-Portable-Signed|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Release-Portable-Signed|Any CPU.Build.0 = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Release-UnitySubset-v35|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Release-UnitySubset-v35|Any CPU.Build.0 = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Debug-UnitySubset-v35|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A17C958-5C33-4035-AF76-F94A3AA2DC4F}.Debug-UnitySubset-v35|Any CPU.Build.0 = Debug|Any CPU
 		{BF32DE1B-6276-4341-B212-F8862ADBBA7A}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{BF32DE1B-6276-4341-B212-F8862ADBBA7A}.Debug|x86.Build.0 = Debug|Any CPU
 		{BF32DE1B-6276-4341-B212-F8862ADBBA7A}.Release|x86.ActiveCfg = Release-Signed|Any CPU
