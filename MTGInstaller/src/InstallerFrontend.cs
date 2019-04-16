@@ -195,7 +195,7 @@ namespace MTGInstaller {
 			_Installer.ChangeExePath(exe_path);
 
 			var etgmod_cache_path = Path.Combine(_Installer.ManagedDir, "ModBackup");
-			return File.Exists(etgmod_cache_path);
+			return Directory.Exists(etgmod_cache_path);
 		}
 
 		public string[] GetPatchInfo(string exe_path = null) {
