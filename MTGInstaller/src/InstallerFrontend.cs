@@ -189,5 +189,32 @@ namespace MTGInstaller {
 
 			_Logger.Info($"OPERATION COMPLETED SUCCESSFULLY");
 		}
+
+		public bool HasETGModInstalled(string exe_path = null) {
+			exe_path = _GetExePath(exe_path);
+			_Installer.ChangeExePath(exe_path);
+
+			var etgmod_cache_path = Path.Combine(_Installer.GameDir, "ETGModCache");
+			return File.Exists(etgmod_cache_path);
+		}
+
+		public string[] GetPatchInfo(string exe_path = null) {
+			exe_path = _GetExePath(exe_path);
+			_Installer.ChangeExePath(exe_path);
+
+			if (HasETGModInstalled(exe_path)) {
+				return new string[] { "ETGMod Legacy" };
+			}
+
+			if (!File.Exists(_Installer.PatchesInfoFile)) return new string[0];
+
+			var patches_list = new List<string>();
+			using (var reader = new StreamReader(File.OpenRead(_Installer.PatchesInfoFile))) {
+				while (!reader.EndOfStream) {
+					patches_list.Add(reader.ReadLine());
+				}
+			}
+			return patches_list.ToArray();
+		}
 	}
 }

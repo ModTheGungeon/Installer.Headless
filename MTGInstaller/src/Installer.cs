@@ -24,6 +24,7 @@ namespace MTGInstaller {
 		const string TMP_PATCHED_EXE_NAME = "EtG.patched";
 		const string TMP_PATCHED_UNITYPLAYER_DLL_NAME = "UnityPlayer.patched";
 		const string BACKUP_VERSION_FILE_NAME = "backup_version.txt";
+		const string PATCHES_INFO_FILE_NAME = "patches.txt";
 
 		public bool ExePatched = false;
 		public string GameDir;
@@ -49,6 +50,7 @@ namespace MTGInstaller {
 		public string BackupManagedDir { get { return Path.Combine(BackupDir, BACKUP_MANAGED_NAME); } }
 		public string BackupPluginsDir { get { return Path.Combine(BackupDir, BACKUP_PLUGINS_NAME); } }
 		public string BackupVersionFile { get { return Path.Combine(BackupDir, BACKUP_VERSION_FILE_NAME); } }
+		public string PatchesInfoFile { get { return Path.Combine(GameDir, "EtG_Data", PATCHES_INFO_FILE_NAME); } }
 
 		public void Restore(bool force = false) {
 			if (!force && !Directory.Exists(BackupDir)) {
@@ -392,6 +394,10 @@ namespace MTGInstaller {
 
 				if (HasPluginsDir) _InstallPlugins(installer.PluginsDir);
 				if (RequiresPatchedExe) installer.PatchExe();
+
+				using (StreamWriter patches_info_writer = new StreamWriter(File.OpenWrite(installer.PatchesInfoFile))) {
+					patches_info_writer.WriteLine($"{Name} {VersionName}");
+				}
 
 				_Install("assembly", Assemblies, managed);
 				_Install("MonoMod patch DLL", PatchDLLs, managed);
