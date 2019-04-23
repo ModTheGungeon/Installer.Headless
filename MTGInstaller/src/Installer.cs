@@ -60,16 +60,21 @@ namespace MTGInstaller {
 
 			_Logger.Info("Restoring from backup");
 
+			var game_version = Autodetector.GetVersionIn(ExeFile);
+			if (game_version == null) {
+				throw new Exception("Missing version.txt file!");
+			}
+
 			if (!File.Exists(BackupVersionFile)) _Logger.Warn("Backup version file is missing - did an error occur while creating the backup? The game files might be corrupted.");
 			else {
 				var ver = File.ReadAllText(BackupVersionFile);
-				if (ver == Autodetector.Version) {
+				if (ver == game_version) {
 					_Logger.Debug($"Backup versions match");
 				} else {
 					_Logger.Debug($"Backup versions DON'T match");
 					try {
 						var bkp_ver_obj = new Version(ver);
-						var cur_ver_obj = new Version(Autodetector.Version);
+						var cur_ver_obj = new Version(game_version);
 
 						if (cur_ver_obj > bkp_ver_obj) {
 							_Logger.Info($"Backup version is older - assuming game was updated, wiping backup directory so that a new backup can be made");
@@ -155,6 +160,11 @@ namespace MTGInstaller {
 				}
 			}
 
+			var game_version = Autodetector.GetVersionIn(ExeFile);
+			if (game_version == null) {
+				throw new Exception("Missing version.txt file!");
+			}
+
 			_Logger.Info("Performing backup");
 
 			Directory.CreateDirectory(BackupDir);
@@ -191,8 +201,8 @@ namespace MTGInstaller {
 				Utils.CopyRecursive(ent, Path.Combine(BackupPluginsDir, file));
 			}
 
-			_Logger.Debug($"Backed up for Gungeon {Autodetector.Version}");
-			File.WriteAllText(BackupVersionFile, Autodetector.Version);
+			_Logger.Debug($"Backed up for Gungeon {game_version}");
+			File.WriteAllText(BackupVersionFile, game_version);
 		}
 
 		public void PatchExe() {

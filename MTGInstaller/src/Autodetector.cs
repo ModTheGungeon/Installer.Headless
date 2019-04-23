@@ -244,8 +244,6 @@ namespace MTGInstaller {
 			}
 		}
 
-		private static string[] _Version;
-
 		private static string[] _ReadVersion(string exe_path) {
 			if (exe_path == null) return null;
 
@@ -266,27 +264,15 @@ namespace MTGInstaller {
 
 		public static string GetVersionIn(string exe_path) {
 			var v = _ReadVersion(exe_path);
+			if (v == null) return null;
 			if (v.Length == 1) return v[0];
 			return v[1];
 		}
 
 		public static string GetVersionNameIn(string exe_path) {
-			return _ReadVersion(exe_path)[0];
-		}
-
-		public static string Version {
-			get {
-				if (_Version == null) _Version = _ReadVersion(ExePath);
-				if (_Version.Length == 1) return _Version[0];
-				else return _Version[1];
-			}
-		}
-
-		public static string VersionName {
-			get {
-				if (_Version == null) _Version = _ReadVersion(ExePath);
-				return _Version[0];
-			}
+			var v = _ReadVersion(exe_path);
+			if (v == null) return null;
+			return v[0];
 		}
 	}
 }
