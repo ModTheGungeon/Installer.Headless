@@ -30,7 +30,7 @@ namespace MTGInstaller {
 
 		public Dictionary<string, ETGModComponent> Components;
 
-		public string BaseDomain = "modthegungeon.eu/reloaded";
+		public string BaseDomain = "modthegungeon.eu/semi";
 		public string BaseURL;
 		public string ComponentsURL;
 		public string GungeonMetadataURL;
