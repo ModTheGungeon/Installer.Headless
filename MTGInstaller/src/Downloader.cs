@@ -4,6 +4,8 @@ using System.Net;
 using System.IO.Compression;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MTGInstaller {
 	public class DownloadedBuild : IDisposable {
@@ -23,6 +25,7 @@ namespace MTGInstaller {
 	}
 
 	public class Downloader {
+
 		public static WebClient WebClient = new WebClient();
 		private static Logger _Logger = new Logger(nameof(Downloader));
 
@@ -30,7 +33,7 @@ namespace MTGInstaller {
 
 		public Dictionary<string, ETGModComponent> Components;
 
-		public string BaseDomain = "modthegungeon.eu/semi";
+		public string BaseDomain = "raw.githubusercontent.com/ModTheGungeon/ModTheGungeon.github.io/master/semi";
 		public string BaseURL;
 		public string ComponentsURL;
 		public string GungeonMetadataURL;
@@ -141,7 +144,12 @@ namespace MTGInstaller {
 		}
 
 		public DownloadedBuild Download(string url, string dest, string name = null, bool local = false) {
-			if (name != null) _Logger.Info($"Downloading {name} from {url} to {dest}");
+            url = url.Replace("modthegungeon.github.io", "raw.githubusercontent.com/ModTheGungeon/ModTheGungeon.github.io/master/");
+            url = url.Replace("modthegungeon.eu", "raw.githubusercontent.com/ModTheGungeon/ModTheGungeon.github.io/master/");
+
+            // fucking https/cloudflare bullshit
+
+            if (name != null) _Logger.Info($"Downloading {name} from {url} to {dest}");
 			else _Logger.Info($"Downloading {url} to {dest}");
 
 			var extract_path = Path.Combine(dest, "EXTRACTED");
@@ -153,5 +161,5 @@ namespace MTGInstaller {
 			ZipFile.ExtractToDirectory(zip_path, extract_path);
 			return new DownloadedBuild(url, dest, extract_path);
 		}
-	}
+    }
 }
