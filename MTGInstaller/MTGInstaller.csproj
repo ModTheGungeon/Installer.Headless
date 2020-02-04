@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Xwt.Gtk.0.2.61\build\Xwt.Gtk.props" Condition="Exists('..\packages\Xwt.Gtk.0.2.61\build\Xwt.Gtk.props')" />
@@ -96,4 +97,103 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+=======
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Xwt.Gtk.0.2.61\build\Xwt.Gtk.props" Condition="Exists('..\packages\Xwt.Gtk.0.2.61\build\Xwt.Gtk.props')" />
+  <Import Project="..\packages\Xwt.Gtk3.0.2.61\build\Xwt.Gtk3.props" Condition="Exists('..\packages\Xwt.Gtk3.0.2.61\build\Xwt.Gtk3.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{14668D9A-D210-4255-B921-FB2665223CE1}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MTGInstaller</RootNamespace>
+    <AssemblyName>MTGInstaller</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="CommandLine">
+      <HintPath>..\libs\CommandLine\CommandLine.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="MonoMod.BaseLoader">
+      <HintPath>..\libs\MonoMod\MonoMod.BaseLoader.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod">
+      <HintPath>..\libs\MonoMod\MonoMod.exe</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\libs\MonoMod\Mono.Cecil.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Autodetector.cs" />
+    <Compile Include="src\Downloader.cs" />
+    <Compile Include="src\ExePatcher.cs" />
+    <Compile Include="src\Installer.cs" />
+    <Compile Include="src\Logger.cs" />
+    <Compile Include="src\Options.cs" />
+    <Compile Include="src\Program.cs" />
+    <Compile Include="src\ComponentVersion.cs" />
+    <Compile Include="src\InstallerFrontend.cs" />
+    <Compile Include="src\Settings.cs" />
+    <Compile Include="src\ComponentInfo.cs" />
+    <Compile Include="src\ComponentMetadata.cs" />
+    <Compile Include="src\ETGModComponent.cs" />
+    <Compile Include="src\ETGModVersion.cs" />
+    <Compile Include="src\GungeonMetadata.cs" />
+    <Compile Include="src\SerializationHelper.cs" />
+    <Compile Include="src\PlatformPlugin.cs" />
+    <Compile Include="src\Utils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\" />
+    <Folder Include="res\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="gfx\background.png">
+      <LogicalName>gfx::background</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="gfx\logo.png">
+      <LogicalName>gfx::logo</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="res\custom-components-template.yml">
+      <LogicalName>res::custom-components-template</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="res\settings-template.yml">
+      <LogicalName>res::settings-template</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libs\YamlDotNet\YamlDotNet\YamlDotNet.csproj">
+      <Project>{BF32DE1B-6276-4341-B212-F8862ADBBA7A}</Project>
+      <Name>YamlDotNet</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+>>>>>>> 0070d3dac0b1545a2a642f69330754dd3100d573
 </Project>
