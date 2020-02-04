@@ -196,7 +196,7 @@ namespace MTGInstaller {
 
 				path = Path.Combine(path, "Enter the Gungeon");
 				if (Platform == Platform.Mac) {
-					path = Path.Combine(path, "EtG_OSX.app", "Contents", "MacOS");
+					path = Path.Combine(path, "EtG_OSX.app");
 				}
 
 				return path;
