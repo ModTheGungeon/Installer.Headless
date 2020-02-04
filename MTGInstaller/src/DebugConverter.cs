@@ -153,6 +153,20 @@ namespace MTGInstaller {
 
 		}
 
+		public string GetUnityDebugMonoDir(Architecture arch, Platform plat, string base_path) {
+			var arch_str = arch == Architecture.X86 ? "32" : "64";
+			var arch_xstr = arch == Architecture.X86 ? "x86" : "x86_64";
+
+			if (plat == Platform.Windows)
+				return Path.Combine(base_path, $"win{arch_str}_development_mono", "Data", "Mono", "EmbedRuntime");
+			else if (plat == Platform.Linux)
+				return Path.Combine(base_path, $"linux{arch_str}_withgfx_development_mono", "Data", "Mono", arch_xstr);
+			else if (plat == Platform.Mac) {
+				if (arch == Architecture.X86) throw new Exception("Unity doesn't support 32-bit OSX");
+				return Path.Combine(base_path, $"macosx64_development_mono", "UnityPlayer.app", "Contents", "Frameworks", "Mono", "MonoEmbedRuntime", "osx");
+			} else return null;
+		}
+
 		public string GetBootConfigPath(Platform plat) {
 			return Installer.BootConfigFile;
 		}
@@ -170,9 +184,13 @@ namespace MTGInstaller {
 			Logger.Debug($"Debug DLL: {player_dll ?? "N/A"}");
 			var managed_dir = GetUnityDebugManagedDir(arch, plat, base_dir);
 			Logger.Debug($"Debug Managed dir: {managed_dir}");
+			var mono_dir = GetUnityDebugMonoDir(arch, plat, base_dir);
+			Logger.Debug($"Debug Mono dir: {mono_dir}");
 
 			var boot_config_path = GetBootConfigPath(plat);
 			Logger.Debug($"Game boot.config path: {boot_config_path}");
+			var target_mono_dir = Installer.MonoDir;
+			Logger.Debug($"Target Mono dir: {target_mono_dir}");
 
 			var exe_perm = Installer.GetUnixPermission(Installer.ExeFile);
 			File.Delete(Installer.ExeFile);
@@ -203,6 +221,15 @@ namespace MTGInstaller {
 				Logger.Debug($"Installing Debug Managed file: {filename} to '{target_path}'");
 				if (File.Exists(target_path)) File.Delete(target_path);
 				File.Copy(path, target_path);
+			}
+
+			foreach (var path in Directory.EnumerateFiles(mono_dir)) {
+				var filename = Path.GetFileName(path);
+				var targetpath = Path.Combine(target_mono_dir, filename);
+
+				Logger.Debug($"Installing Debug Mono file: {filename} to '{targetpath}'");
+				if (File.Exists(targetpath)) File.Delete(targetpath);
+				File.Copy(path, targetpath);
 			}
 
 			var boot_config = File.ReadAllText(boot_config_path);

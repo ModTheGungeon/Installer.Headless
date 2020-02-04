@@ -18,6 +18,7 @@ namespace MTGInstaller {
 		public static Logger _Logger = new Logger(nameof(Installer));
 
 		const string BACKUP_DIR_NAME = ".ETGModBackup";
+		const string BACKUP_MONO_NAME = "Mono";
 		const string BACKUP_MANAGED_NAME = "Managed";
 		const string BACKUP_PLUGINS_NAME = "Plugins";
 		const string BACKUP_ROOT_NAME = "Root";
@@ -45,10 +46,24 @@ namespace MTGInstaller {
 		public string WindowsUnityPlayerDLL { get { return Path.Combine(GameDir, "UnityPlayer.dll"); } }
 		public string PatchedWindowsUnityPlayerDLL { get { return Path.Combine(GameDir, TMP_PATCHED_UNITYPLAYER_DLL_NAME); } }
 		public string ManagedDir { get { return Path.Combine(GameDir, "EtG_Data", "Managed"); } }
+		public string MonoDir {
+			get {
+				switch (Autodetector.Platform) {
+				case Platform.Windows: return Path.Combine(GameDir, "EtG_Data", "Mono");
+				case Platform.Linux: return Path.Combine(GameDir, "EtG_Data", "Mono", Autodetector.Architecture == Architecture.X86 ? "x86" : "x86_64");
+				case Platform.Mac:
+					if (Autodetector.Architecture == Architecture.X86) throw new Exception("Unity doesn't support 32-bit OSX");
+					//@TODO This almost certainly won't work.
+					return Path.Combine(GameDir, "Contents", "Frameworks", "Mono", "MonoEmbedRuntime", "osx");
+				}
+				return null;
+			}
+		}
 		public string PluginsDir { get { return Path.Combine(GameDir, "EtG_Data", "Plugins"); } }
 		public string BootConfigFile { get { return Path.Combine(GameDir, "EtG_Data", "boot.config"); } }
 		public string BackupDir { get { return Path.Combine(GameDir, BACKUP_DIR_NAME); } }
 		public string BackupRootDir { get { return Path.Combine(BackupDir, BACKUP_ROOT_NAME); } }
+		public string BackupMonoDir { get { return Path.Combine(BackupDir, BACKUP_MONO_NAME); } }
 		public string BackupManagedDir { get { return Path.Combine(BackupDir, BACKUP_MANAGED_NAME); } }
 		public string BackupPluginsDir { get { return Path.Combine(BackupDir, BACKUP_PLUGINS_NAME); } }
 		public string BackupVersionFile { get { return Path.Combine(BackupDir, BACKUP_VERSION_FILE_NAME); } }
@@ -120,6 +135,24 @@ namespace MTGInstaller {
 				}
 			}
 
+			if (!Directory.Exists(BackupMonoDir)) _Logger.Warn("Mono directory backup is missing - did an error occur while creating the backup? The game files might be corrupted.");
+			else {
+				_Logger.Debug($"WIPING Mono directory");
+				Directory.Delete(MonoDir, recursive: true);
+
+				Directory.CreateDirectory(MonoDir);
+
+				var managed_entries = Directory.GetFileSystemEntries(BackupMonoDir);
+
+				foreach (var ent in managed_entries) {
+					var file = Path.GetFileName(ent);
+
+					_Logger.Debug($"Restoring mono file: {file}");
+
+					File.Copy(ent, Path.Combine(MonoDir, file), overwrite: true);
+				}
+			}
+
 			if (!Directory.Exists(BackupManagedDir)) _Logger.Warn("Managed directory backup is missing - did an error occur while creating the backup? The game files might be corrupted.");
 			else {
 				_Logger.Debug($"WIPING Managed directory");
@@ -180,6 +213,7 @@ namespace MTGInstaller {
 
 			Directory.CreateDirectory(BackupDir);
 			Directory.CreateDirectory(BackupRootDir);
+			Directory.CreateDirectory(BackupMonoDir);
 			Directory.CreateDirectory(BackupManagedDir);
 			Directory.CreateDirectory(BackupPluginsDir);
 
@@ -193,6 +227,14 @@ namespace MTGInstaller {
 
 					File.Copy(ent, Path.Combine(BackupRootDir, file), overwrite: true);
 				}
+			}
+
+			var mono_entries = Directory.GetFileSystemEntries(MonoDir);
+			foreach (var ent in mono_entries) {
+				var file = Path.GetFileName(ent);
+				_Logger.Debug($"Backing up mono file: {file}");
+
+				File.Copy(ent, Path.Combine(BackupMonoDir, file), overwrite: true);
 			}
 
 			var managed_entries = Directory.GetFileSystemEntries(ManagedDir);
