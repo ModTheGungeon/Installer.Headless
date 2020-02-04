@@ -151,7 +151,6 @@ namespace MTGInstaller {
 					throw new InstallationFailedException($"Component {com.Name} doesn't exist in the list of components.");
 				}
 			}
-
 			Install(real_components, exe_path);
 		}
 

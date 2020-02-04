@@ -440,14 +440,9 @@ namespace MTGInstaller {
 					var patch_target_dll = Path.Combine(managed, $"{patch_target}.dll");
 					var patch_target_tmp = Path.Combine(managed, $"{patch_target}{TMP_PATCH_SUFFIX}");
 
-                    // Auto is bugged in MonoMod?
-                    var debug_sym_format = DebugSymbolFormat.PDB;
-                    if (Autodetector.Platform == Platform.Windows) debug_sym_format = DebugSymbolFormat.MDB;
-
 					var modder = new MonoModder {
 						InputPath = patch_target_dll,
-						OutputPath = patch_target_tmp,
-                        DebugSymbolOutputFormat = debug_sym_format
+						OutputPath = patch_target_tmp
 					};
 
 					if (Metadata != null && Metadata.RelinkMap != null) {
