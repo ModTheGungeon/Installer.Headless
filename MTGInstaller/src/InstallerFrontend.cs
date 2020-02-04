@@ -45,6 +45,8 @@ namespace MTGInstaller {
 			var sevenz_path = Settings.Instance.SevenZipPath;
 			_DebugConverter = new DebugConverter(cache_dir, _Installer, sevenz_path);
 
+			Environment.SetEnvironmentVariable("MONOMOD_DEBUG_FORMAT", "MDB");
+
 			foreach (var ent in settings.CustomComponentFiles) {
 				LoadComponentsFile(ent);
 			}
