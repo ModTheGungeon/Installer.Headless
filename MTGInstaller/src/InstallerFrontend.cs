@@ -17,6 +17,7 @@ namespace MTGInstaller {
 		private static Logger _Logger = new Logger("InstallerFrontend");
 		private Installer _Installer;
 		private Downloader _Downloader;
+		private DebugConverter _DebugConverter;
 
 		public InstallerOptions Options;
 		public List<ETGModComponent> Components;
@@ -39,6 +40,10 @@ namespace MTGInstaller {
 
 			_Downloader = new Downloader(force_http: Options.HasFlag(InstallerOptions.HTTP), offline: Options.HasFlag(InstallerOptions.Offline));
 			_Installer = new Installer(_Downloader, exe_path: null);
+
+			var cache_dir = Path.Combine(Settings.SettingsDir, "Unity");
+			var sevenz_path = Settings.Instance.SevenZipPath;
+			_DebugConverter = new DebugConverter(cache_dir, _Installer, sevenz_path);
 
 			foreach (var ent in settings.CustomComponentFiles) {
 				LoadComponentsFile(ent);
@@ -146,6 +151,25 @@ namespace MTGInstaller {
 			}
 
 			Install(real_components, exe_path);
+		}
+
+		public void InstallUnityDebug() {
+			_Logger.Info($"OPERATION: InstallUnityDebug. Target: {_Installer.GameDir}");
+
+			if (Settings.Instance.SevenZipPath == null) {
+				throw new Exception("7z path must be set if UnityDebug is enabled");
+			}
+			_DebugConverter.ConvertToDebugBuild(Autodetector.Platform, Autodetector.Architecture);
+
+			_Logger.Info($"OPERATION COMPLETED SUCCESSFULLY");
+		}
+
+		public void InstallILDebug() {
+			_Logger.Info($"OPERATION: InstallILDebug. Target: {_Installer.GameDir}");
+
+			_DebugConverter.InstallILDebug();
+
+			_Logger.Info($"OPERATION COMPLETED SUCCESSFULLY");
 		}
 
 		public void Install(IEnumerable<ComponentVersion> components, string exe_path = null, Action<ComponentVersion> component_installed = null) {

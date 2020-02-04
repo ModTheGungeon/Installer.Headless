@@ -36,14 +36,14 @@
       <HintPath>..\libs\CommandLine\CommandLine.dll</HintPath>
     </Reference>
     <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="MonoMod.BaseLoader">
-      <HintPath>..\libs\MonoMod\MonoMod.BaseLoader.dll</HintPath>
-    </Reference>
     <Reference Include="MonoMod">
       <HintPath>..\libs\MonoMod\MonoMod.exe</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>..\libs\MonoMod\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.DebugIL">
+      <HintPath>..\libs\MonoMod\MonoMod.DebugIL.exe</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +66,7 @@
     <Compile Include="src\SerializationHelper.cs" />
     <Compile Include="src\PlatformPlugin.cs" />
     <Compile Include="src\Utils.cs" />
+    <Compile Include="src\DebugConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />

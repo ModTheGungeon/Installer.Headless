@@ -75,24 +75,36 @@ namespace MTGInstaller {
 		public bool LeavePatchDLLs { get; set; } = false;
 		[YamlMember(Alias = "offline")]
 		public bool Offline { get; set; } = false;
+		[YamlMember(Alias = "unity_debug")]
+		public bool UnityDebug { get; set; } = false;
+		[YamlMember(Alias = "7z_path")]
+		public string SevenZipPath { get; set; } = null;
+		[YamlMember(Alias = "il_debug")]
+		public bool ILDebug { get; set; } = false;
 
 		[YamlIgnore]
 		public string UserFriendly {
 			get {
 				var builder = new StringBuilder();
 				builder.Append("Version: ").AppendLine(Version.ToString());
+				builder.AppendLine("=== General ===");
 				builder.Append("Executable path: ").AppendLine(ExecutablePath ?? "Not overriden");
-				builder.Append("Force insecure HTTP: ").AppendLine(ForceHTTP ? "Yes" : "No");
 				builder.Append("Force a backup of the current state: ").AppendLine(ForceBackup ? "Yes" : "No");
 				builder.Append("Skip version checks: ").AppendLine(SkipVersionChecks ? "Yes" : "No");
-				builder.Append("Offline mode: ").AppendLine(Offline ? "Yes" : "No");
 				if (CustomComponentFiles.Count > 0) {
 					builder.AppendLine("Custom component files: ");
 					foreach (var comp in CustomComponentFiles) {
 						builder.Append("  - ").AppendLine(comp);
 					}
 				}
-				builder.Append("Leave patch DLLs: ").Append(LeavePatchDLLs ? "Yes" : "No");
+				builder.AppendLine("=== Downloader ===");
+				builder.Append("Force insecure HTTP: ").AppendLine(ForceHTTP ? "Yes" : "No");
+				builder.Append("Offline mode: ").AppendLine(Offline ? "Yes" : "No");
+				builder.Append("Leave patch DLLs: ").AppendLine(LeavePatchDLLs ? "Yes" : "No");
+				builder.AppendLine("=== Debugging ===");
+				builder.Append("Unity debug build enabled: ").AppendLine(UnityDebug ? "Yes" : "No");
+				builder.Append("Path to the 7z executable: ").AppendLine(SevenZipPath ?? "<none set>");
+				builder.Append("IL debugging enabled: ").Append(ILDebug ? "Yes" : "No");
 				return builder.ToString();
 			}
 		}

@@ -24,6 +24,7 @@ namespace MTGInstaller {
 		const string TMP_PATCHED_EXE_NAME = "EtG.patched";
 		const string TMP_PATCHED_UNITYPLAYER_DLL_NAME = "UnityPlayer.patched";
 		const string BACKUP_VERSION_FILE_NAME = "backup_version.txt";
+		const string BACKUP_BOOT_CONFIG_FILE_NAME = "backup_boot.config";
 		const string PATCHES_INFO_FILE_NAME = "patches.txt";
 
 		public bool ExePatched = false;
@@ -45,11 +46,13 @@ namespace MTGInstaller {
 		public string PatchedWindowsUnityPlayerDLL { get { return Path.Combine(GameDir, TMP_PATCHED_UNITYPLAYER_DLL_NAME); } }
 		public string ManagedDir { get { return Path.Combine(GameDir, "EtG_Data", "Managed"); } }
 		public string PluginsDir { get { return Path.Combine(GameDir, "EtG_Data", "Plugins"); } }
+		public string BootConfigFile { get { return Path.Combine(GameDir, "EtG_Data", "boot.config"); } }
 		public string BackupDir { get { return Path.Combine(GameDir, BACKUP_DIR_NAME); } }
 		public string BackupRootDir { get { return Path.Combine(BackupDir, BACKUP_ROOT_NAME); } }
 		public string BackupManagedDir { get { return Path.Combine(BackupDir, BACKUP_MANAGED_NAME); } }
 		public string BackupPluginsDir { get { return Path.Combine(BackupDir, BACKUP_PLUGINS_NAME); } }
 		public string BackupVersionFile { get { return Path.Combine(BackupDir, BACKUP_VERSION_FILE_NAME); } }
+		public string BackupBootConfigFile { get { return Path.Combine(BackupDir, BACKUP_BOOT_CONFIG_FILE_NAME); } }
 		public string PatchesInfoFile { get { return Path.Combine(GameDir, "EtG_Data", PATCHES_INFO_FILE_NAME); } }
 
 		public void Restore(bool force = false) {
@@ -87,6 +90,14 @@ namespace MTGInstaller {
 					Directory.Delete(BackupDir, recursive: true);
 					return;
 				}
+			}
+
+			if (!Directory.Exists(BackupBootConfigFile)) _Logger.Warn("Boot file backup is missing - did an error occur while creating the backup? The game files might be corrupted.");
+			else {
+				File.Delete(BootConfigFile);
+				_Logger.Debug($"Restoring boot.config file");
+
+				File.Copy(BackupBootConfigFile, BootConfigFile);
 			}
 
 			if (File.Exists(PatchedExeFile)) {
@@ -172,6 +183,8 @@ namespace MTGInstaller {
 			Directory.CreateDirectory(BackupManagedDir);
 			Directory.CreateDirectory(BackupPluginsDir);
 
+			File.Copy(BootConfigFile, BackupBootConfigFile, overwrite: true);
+
 			var root_entries = Directory.GetFileSystemEntries(GameDir);
 			foreach (var ent in root_entries) {
 				var file = Path.GetFileName(ent);
@@ -205,6 +218,38 @@ namespace MTGInstaller {
 			File.WriteAllText(BackupVersionFile, game_version);
 		}
 
+		public string GetUnixPermission(string file) {
+			string perm_octal = null; // unix only
+			if (Autodetector.Unix) {
+				var stat_arg = "-c '%a'";
+				if (Autodetector.Platform == Platform.Mac) stat_arg = "-f '%p'";
+
+				Process p = Process.Start(new ProcessStartInfo {
+					FileName = "/usr/bin/stat",
+					UseShellExecute = false,
+					Arguments = $"{stat_arg} \"{file.Replace("\\", "\\\\").Replace("\"", "\\\"")}\"",
+					RedirectStandardOutput = true
+				});
+				perm_octal = p.StandardOutput.ReadToEnd().Trim();
+				p.WaitForExit();
+				p.Close();
+			}
+
+			return perm_octal;
+		}
+
+		public void SetUnixPermission(string file, string perm) {
+			if (Autodetector.Unix) {
+				Process p = Process.Start(new ProcessStartInfo {
+					FileName = "/usr/bin/chmod",
+					UseShellExecute = false,
+					Arguments = $"\"{perm}\" \"{file.Replace("\\", "\\\\").Replace("\"", "\\\"")}\""
+				});
+				p.WaitForExit();
+				p.Close();
+			}
+		}
+
 		public void PatchExe() {
 			if (ExePatched) return;
 			ExePatched = true;
@@ -220,23 +265,8 @@ namespace MTGInstaller {
 			if (Downloader.GungeonMetadata.ExeOrigSubsitutions == null) return;
 			_Logger.Info("Patching executable to substitute symbols");
 
-			string perm_octal = null; // unix only
-			if (Autodetector.Unix) {
-				var stat_arg = "-c '%a'";
-				if (Autodetector.Platform == Platform.Mac) stat_arg = "-f '%p'";
-
-				Process p = Process.Start(new ProcessStartInfo {
-					FileName = "/usr/bin/stat",
-					UseShellExecute = false,
-					Arguments = $"{stat_arg} '{patch_file}'",
-					RedirectStandardOutput = true
-				});
-				perm_octal = p.StandardOutput.ReadToEnd().Trim();
-				p.WaitForExit();
-				p.Close();
-
-				_Logger.Debug($"Permissions on executable: {perm_octal}");
-			}
+			var perm_octal = GetUnixPermission(patch_file);
+			_Logger.Debug($"Permissions on executable: {perm_octal}");
 
 			using (var reader = new BinaryReader(File.OpenRead(patch_file)))
 			using (var writer = new BinaryWriter(File.OpenWrite(target_file))) {
@@ -247,17 +277,9 @@ namespace MTGInstaller {
 			if (File.Exists(patch_file)) File.Delete(patch_file);
 			File.Move(target_file, patch_file);
 
-			if (Autodetector.Unix) {
-				_Logger.Info($"Restoring executable permissions");
+			_Logger.Info($"Restoring executable permissions");
+			SetUnixPermission(patch_file, perm_octal);
 
-				Process p = Process.Start(new ProcessStartInfo {
-					FileName = "/usr/bin/chmod",
-					UseShellExecute = false,
-					Arguments = $"'{perm_octal}' '{patch_file}'"
-				});
-				p.WaitForExit();
-				p.Close();
-			}
 		}
 
 		public void InstallComponent(InstallableComponent comp, bool leave_mmdlls = false) {

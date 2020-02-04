@@ -115,6 +115,15 @@ namespace MTGInstaller.Options {
 		[Option('c', "component-file", HelpText = "Add custom components through YAML files")]
 		public IEnumerable<string> CustomComponentFiles { get; set; } = null;
 
+		[Option('D', "unity-debug", HelpText = "Enable auto-conversion to a Unity debug build")]
+		public string UnityDebug { get; set; } = null;
+
+		[Option('S', "7zip-exe-path", HelpText = "Path to the 7zip executable, required with unity-debug")]
+		public string SevenZipExePath { get; set; } = null;
+
+		[Option('I', "il-debug", HelpText = "Enable MonoMod DebugIL-based debugging (requires unity-debug to work)")]
+		public string ILDebug { get; set; } = null;
+
 		[Option('C', "clear-custom-component-files", HelpText = "Clear the custom component YAML file list")]
 		public bool ClearCustomComponentFiles { get; set; } = false;
 
