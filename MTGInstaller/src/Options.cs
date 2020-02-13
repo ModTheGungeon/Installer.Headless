@@ -103,6 +103,9 @@ namespace MTGInstaller.Options {
 		[Option('E', "clear-executable-path", HelpText = "Clear the executable path")]
 		public bool ClearExecutablePath { get; set; } = false;
 
+		[Option('o', "offline-mode", HelpText = "Avoid downloading anything")]
+		public string OfflineMode { get; set; } = null;
+
 		[Option('h', "force-http", HelpText = "Force use of insecure HTTP instead of HTTPS")]
 		public string ForceHTTP { get; set; } = null;
 

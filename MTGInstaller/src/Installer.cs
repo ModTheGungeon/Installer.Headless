@@ -45,7 +45,16 @@ namespace MTGInstaller {
 		public string PatchedExeFile { get { return Path.Combine(GameDir, TMP_PATCHED_EXE_NAME); } }
 		public string WindowsUnityPlayerDLL { get { return Path.Combine(GameDir, "UnityPlayer.dll"); } }
 		public string PatchedWindowsUnityPlayerDLL { get { return Path.Combine(GameDir, TMP_PATCHED_UNITYPLAYER_DLL_NAME); } }
-		public string ManagedDir { get { return Path.Combine(GameDir, "EtG_Data", "Managed"); } }
+		public string DataDir {
+			get {
+				if (Autodetector.Platform == Platform.Mac) {
+					var contents_dir = Path.GetDirectoryName(GameDir); // Contents/MacOS -> Contents
+					return Path.Combine(contents_dir, "Resources", "Data");
+				}
+				return Path.Combine(GameDir, "EtG_Data");
+			}
+		}
+		public string ManagedDir { get { return Path.Combine(DataDir, "Managed"); } }
 		public string MonoDir {
 			get {
 				switch (Autodetector.Platform) {
@@ -53,14 +62,13 @@ namespace MTGInstaller {
 				case Platform.Linux: return Path.Combine(GameDir, "EtG_Data", "Mono", Autodetector.Architecture == Architecture.X86 ? "x86" : "x86_64");
 				case Platform.Mac:
 					if (Autodetector.Architecture == Architecture.X86) throw new Exception("Unity doesn't support 32-bit OSX");
-					//@TODO This almost certainly won't work.
-					return Path.Combine(GameDir, "Contents", "Frameworks", "Mono", "MonoEmbedRuntime", "osx");
+					return Path.Combine(Path.GetDirectoryName(GameDir), "Frameworks", "Mono", "MonoEmbedRuntime", "osx");
 				}
 				return null;
 			}
 		}
-		public string PluginsDir { get { return Path.Combine(GameDir, "EtG_Data", "Plugins"); } }
-		public string BootConfigFile { get { return Path.Combine(GameDir, "EtG_Data", "boot.config"); } }
+		public string PluginsDir { get { return Path.Combine(Path.GetDirectoryName(GameDir), "Plugins"); } }
+		public string BootConfigFile { get { return Path.Combine(DataDir, "boot.config"); } }
 		public string BackupDir { get { return Path.Combine(GameDir, BACKUP_DIR_NAME); } }
 		public string BackupRootDir { get { return Path.Combine(BackupDir, BACKUP_ROOT_NAME); } }
 		public string BackupMonoDir { get { return Path.Combine(BackupDir, BACKUP_MONO_NAME); } }
@@ -68,7 +76,7 @@ namespace MTGInstaller {
 		public string BackupPluginsDir { get { return Path.Combine(BackupDir, BACKUP_PLUGINS_NAME); } }
 		public string BackupVersionFile { get { return Path.Combine(BackupDir, BACKUP_VERSION_FILE_NAME); } }
 		public string BackupBootConfigFile { get { return Path.Combine(BackupDir, BACKUP_BOOT_CONFIG_FILE_NAME); } }
-		public string PatchesInfoFile { get { return Path.Combine(GameDir, "EtG_Data", PATCHES_INFO_FILE_NAME); } }
+		public string PatchesInfoFile { get { return Path.Combine(DataDir, PATCHES_INFO_FILE_NAME); } }
 
 		public void Restore(bool force = false) {
 			if (!force && !Directory.Exists(BackupDir)) {
@@ -283,7 +291,7 @@ namespace MTGInstaller {
 		public void SetUnixPermission(string file, string perm) {
 			if (Autodetector.Unix) {
 				Process p = Process.Start(new ProcessStartInfo {
-					FileName = "/usr/bin/chmod",
+					FileName = "/bin/chmod",
 					UseShellExecute = false,
 					Arguments = $"\"{perm}\" \"{file.Replace("\\", "\\\\").Replace("\"", "\\\"")}\""
 				});

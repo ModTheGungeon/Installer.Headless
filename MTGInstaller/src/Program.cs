@@ -194,6 +194,7 @@ namespace MTGInstaller {
 				var leave_patch_dlls = _StrBool(opts.LeavePatchDLLs);
 				var unity_debug = _StrBool(opts.UnityDebug);
 				var il_debug = _StrBool(opts.ILDebug);
+				var offline_mode = _StrBool(opts.OfflineMode);
 
 				if (opts.ExecutablePath != null) {
 					if (Directory.Exists(opts.ExecutablePath)) {
@@ -219,6 +220,7 @@ namespace MTGInstaller {
 				}
 				if (force_http != null) settings.ForceHTTP = force_http.Value;
 				if (force_backup != null) settings.ForceBackup = force_backup.Value;
+				if (offline_mode != null) settings.Offline = offline_mode.Value;
 				if (skip_version_checks != null) settings.SkipVersionChecks = skip_version_checks.Value;
 				if (leave_patch_dlls != null) settings.LeavePatchDLLs = leave_patch_dlls.Value;
 				if (unity_debug != null) settings.UnityDebug = unity_debug.Value;
